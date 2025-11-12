@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: discord_clone_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-discord_clone}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - discord-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: discord_clone_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - discord-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  discord-network:
+    driver: bridge
