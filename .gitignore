@@ -1,0 +1,47 @@
+# ────────────── Общие ──────────────
+node_modules/
+dist/
+.env
+.env.local
+*.log
+*.pid
+*.seed
+*.sqlite
+.DS_Store
+Thumbs.db
+
+# ────────────── IDE / редакторы ──────────────
+.vscode/
+.idea/
+*.iml
+
+# ────────────── Docker / контейнеры ──────────────
+docker-compose.override.yml
+*.tar
+*.bak
+tmp/
+data/
+volumes/
+
+# ────────────── Backend ──────────────
+backend/node_modules/
+backend/.env
+backend/logs/
+backend/debug.log
+backend/*.sqlite
+backend/coverage/
+backend/tmp/
+
+# ────────────── Frontend ──────────────
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.env.local
+Frontend/coverage/
+Frontend/.vite/
+Frontend/.eslintcache
+
+# ────────────── Misc ──────────────
+*.swp
+*.swo
+*.orig
