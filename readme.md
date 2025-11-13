@@ -163,14 +163,33 @@ socket.on('voice:user-joined', (user) => ...)
 ## 🚀 Быстрый старт (Dev)
 
 ```bash
-# 1. Клонирование репозитория
-git clone https://github.com/your-org/chat-system
+1 Убедись, что в этой папке лежит:
+docker-compose.yml
+папки backend/ и frontend/
+.env (в backend/.env точно должен быть)
 
-# 2. Установка зависимостей
-npm install
+2 Запуск всех контейнеров
+docker compose up --build
 
-# 3. Запуск
-npm run dev
+Эта команда:
+Соберёт образы (frontend, backend, postgres, redis)
+Запустит все контейнеры в сети discord-network
+
+Пробросит порты:
+Frontend → http://localhost:3000
+Backend API → http://localhost:5000
+Postgres → порт 5432
+Redis → только внутри сети
+
+3 Проверка
+
+Открой в браузере:
+🌐 http://localhost:3000
+ → должен загрузиться фронт
+⚙️ http://localhost:5000/api/health
+ → backend отвечает { status: "OK" }
+💾 http://localhost:5000/api/db-check
+ → проверка подключения к БД
 ```
 
 ---
