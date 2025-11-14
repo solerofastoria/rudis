@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import sun from "./assets/Frame.svg";
+import moon from "./assets/Frame-night.svg";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isLight, setIsLight] = useState(false);
+  const [rotate, setRotate] = useState(false);
+
+const toggleTheme = () => {
+  setRotate(true);           // включаем вращение
+  setIsLight(!isLight);
+
+  setTimeout(() => setRotate(false), 800); // выключение после анимации
+};
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className={`app ${isLight ? "light" : "dark"}`}>
+      {/* Фоновый размытый слой */}
+      <div className="background-layer"></div>
+
+      {/* Кнопка переключения темы */}
+      <div className="theme-button" onClick={toggleTheme}>
+  <img
+    src={isLight ? moon : sun}
+    alt="theme-switch"
+    className={`sun-icon ${rotate ? "sun-rotate" : ""}`}
+  />
+</div>
+
+      {/* Форма */}
+      <div className="login-box">
+        <h1 className="title">Добро пожаловать!</h1>
+
+        <label className="label">Адрес электронной почты или номер телефона *</label>
+        <input className="input" placeholder="введите номер" />
+
+        <label className="label">Пароль *</label>
+        <input className="input" placeholder="введите пароль" />
+
+        <a className="forgot" href="#">Забыли пароль?</a>
+
+        <button className="login-btn">ВХОД</button>
+
+        <a className="register" href="#">Зарегистрироваться</a>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

@@ -1,42 +1,82 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app {
+  width: 100vw;
+  height: 100vh;
+
+  background: none;   /* ← фон перенесён в .background-layer */
+
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  color: white;
+  font-family: Inter, sans-serif;
+
+  transition: background-color 1s, filter 0.8s ease-in-out;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.background-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter: blur(12px);
+  transform: scale(1.08); /* чтобы не было чёрных краёв */
+  z-index: -1;
+
+  transition: background-image 0.6s ease, filter 0.4s ease;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Тёмная тема */
+.app.dark .background-layer {
+  background-image: url("./assets/bg.jpg");
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Светлая тема */
+.app.light .background-layer {
+  background-image: url("./assets/bg-sun.jpg");
 }
 
-.card {
-  padding: 2em;
+.app.light .login-btn {
+  background: #3c8fa4;
+  box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.25);
 }
 
-.read-the-docs {
-  color: #888;
+.app.light .login-btn:hover {
+  background: #337e91;
+}
+.login-box {
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  backdrop-filter: blur(25px);
+  gap: 10px;
+}
+.theme-button {
+  position: absolute;
+  right: 40px;
+  bottom: 35px;
+  cursor: pointer;
+  width: 60px;
+  height: 60px;
+}
+
+.sun-icon {
+  width: 60px;
+  height: 60px;
+  transition: transform 0.35s ease, opacity 0.5s ease, filter 0.3s ease;
+}
+
+.theme-button:hover .sun-icon {
+  transform: scale(1.1);
+}
+
+.sun-icon:hover {
+  filter: brightness(1.25);
+  transform: scale(1.1) rotate(4deg);
 }

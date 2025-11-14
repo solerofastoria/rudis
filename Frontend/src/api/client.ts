@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", // проксируется на backend через vite.config.ts
+  baseURL: "http://backend:5000/api", // проксируется на backend через vite.config.ts
   withCredentials: true, // если backend использует cookie
 });
 

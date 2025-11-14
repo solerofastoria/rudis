@@ -13,8 +13,7 @@ services:
       - discord-network
 
   frontend:
-    build:
-      context: ./Frontend
+    build: ./Frontend
     container_name: discord_clone_frontend
     ports:
       - "3000:80"
