@@ -37,143 +37,225 @@
 
 ---
 
-## 🔐 Аутентификация
+🚀 RUDIS – Fullstack приложение (Backend + Frontend + Docker)
 
-JWT + Refresh токены.
+Это полноценное приложение с авторизацией, JWT-аутентификацией, защищёнными роутами, Docker-инфраструктурой и интеграцией PostgreSQL + Redis.
 
-| Метод | Эндпоинт | Описание |
-|-------|-----------|----------|
-| `POST` | `/api/auth/register` | Регистрация |
-| `POST` | `/api/auth/login` | Вход |
-| `POST` | `/api/auth/logout` | Выход |
-| `POST` | `/api/auth/refresh` | Обновление токена |
-| `GET`  | `/api/auth/me` | Текущий пользователь |
+Проект состоит из двух частей:
 
----
+Backend — Node.js (Express + Sequelize + PostgreSQL + Redis)
 
-## 👥 Пользователи и Сообщества
+Frontend — React + TypeScript + Vite
 
-| Раздел | Примеры эндпоинтов | Назначение |
-|--------|--------------------|-------------|
-| **Пользователи** | `/api/users/:id`, `/api/users/search` | Получение и обновление профиля, поиск, друзья |
-| **Серверы (Guilds)** | `/api/servers`, `/api/servers/:id` | Создание и управление серверами |
-| **Каналы** | `/api/servers/:serverId/channels` | Создание и настройка текстовых/голосовых каналов |
+Docker — автоматический запуск всего окружения
 
----
+📁 Структура проекта
+rudis/
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/        # DB, Redis
+│   │   ├── controllers/   # Auth logic
+│   │   ├── middleware/    # Auth middleware (JWT)
+│   │   ├── models/        # Sequelize models
+│   │   ├── routes/        # Routes: /auth
+│   │   ├── utils/         # Validators, JWT utils, username generator
+│   │   ├── app.js         # Express app
+│   │   └── server.js      # Server start
+│   ├── Dockerfile
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/         # /login, /register, /app
+│   │   ├── context/       # Auth context
+│   │   ├── api/           # backend API
+│   │   └── App.tsx
+│   ├── Dockerfile
+│   └── package.json
+│
+├── docker-compose.yml
+└── README.md
 
-## 💬 Сообщения и Реальное время
+⚙️ Требования
 
-### REST API
-```bash
-GET    /api/channels/:channelId/messages
-POST   /api/channels/:channelId/messages
-PUT    /api/messages/:messageId
-DELETE /api/messages/:messageId
-```
+Перед запуском убедись, что установлено:
 
-### WebSocket события
-```js
-socket.emit('message:send', { channelId, content })
-socket.on('message:new', (msg) => ...)
-socket.on('message:update', (msg) => ...)
-socket.on('message:delete', (id) => ...)
-```
+Docker + Docker Compose
 
----
+(опционально) Node.js 20+ — если хочешь запускать без Docker
 
-## 🎤 Голосовая связь (WebRTC)
+🚀 Запуск проекта (через Docker)
 
-Два режима:
+Самый простой способ — один файл:
 
-| Режим | Описание |
-|-------|-----------|
-| **P2P** | до 4–6 участников, минимальная задержка |
-| **SFU** | групповые звонки через медиасервер |
+docker compose up --build
 
-**Signaling через WebSocket:**
-```js
-socket.emit('voice:offer', { offer, targetUserId })
-socket.emit('voice:answer', { answer })
-socket.emit('voice:ice-candidate', { candidate })
-socket.emit('voice:join', { channelId })
-socket.on('voice:user-joined', (user) => ...)
-```
 
----
+После запуска будут доступны:
 
-## 🧱 Модели данных
+Сервис	URL
+Frontend	http://localhost:3000
 
-**User**
-```json
-{
-  "id": "string",
-  "username": "string",
-  "avatar": "url",
-  "status": "online | offline | idle | dnd"
-}
-```
+Backend API	http://localhost:5000
 
-**Server**
-```json
-{
-  "id": "string",
-  "name": "string",
-  "ownerId": "string",
-  "icon": "url"
-}
-```
+PostgreSQL	порт 5432
+Redis	порт 6379
+🧩 Переменные окружения
+📌 backend/.env
+PORT=5000
 
-**Channel**
-```json
-{
-  "id": "string",
-  "serverId": "string",
-  "name": "string",
-  "type": "text | voice"
-}
-```
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=discord_clone
 
-**Message**
-```json
-{
-  "id": "string",
-  "channelId": "string",
-  "authorId": "string",
-  "content": "string",
-  "timestamp": "ISO8601"
-}
-```
+JWT_SECRET=supersecret_jwt_key
+JWT_EXPIRES_IN=7d
 
----
+REDIS_HOST=redis
+REDIS_PORT=6379
 
-## 🧩 Технологии
+📌 frontend/.env
+VITE_API_URL=http://localhost:5000
 
-| Компонент | Технология |
-|------------|------------|
-| Backend | Node.js + Express / NestJS |
-| Database | PostgreSQL |
-| Cache / PubSub | Redis |
-| Auth | JWT |
-| Realtime | WebSocket |
-| Voice / Video | WebRTC + SFU |
-| Frontend | React / Next.js |
-
----
-
-## 🚀 Быстрый старт (Dev)
-
-```bash
-# 1. Клонирование репозитория
-git clone https://github.com/your-org/chat-system
-
-# 2. Установка зависимостей
+🔧 Локальный запуск (без Docker)
+Backend
+cd backend
 npm install
-
-# 3. Запуск
 npm run dev
-```
 
----
+
+Сервер поднимется на:
+
+http://localhost:5000
+
+Frontend
+cd frontend
+npm install
+npm run dev
+
+
+Открой:
+
+http://localhost:5173
+
+🔐 Маршруты Backend
+POST /auth/register
+
+Регистрация пользователя
+Тело:
+
+{
+  "email": "test@mail.com",
+  "username": "tester",
+  "password": "123456"
+}
+
+POST /auth/login
+
+Авторизация
+Возвращает JWT токен.
+
+GET /auth/me
+
+Профиль пользователя
+Headers:
+
+Authorization: Bearer <token>
+
+🧪 Проверка работы
+
+Открыть фронт:
+http://localhost:3000/login
+
+Зарегистрироваться → backend создаёт юзера.
+
+Войти → появляется токен в LocalStorage.
+
+Перейти на защищённый роут:
+/app
+
+Нажать “Выйти” → токен удаляется.
+
+🚀 Docker-инфраструктура
+
+Проект использует:
+
+🐳 docker-compose.yml
+
+backend – Node.js Express
+
+frontend – Vite + Nginx (multi-stage build)
+
+postgres — база данных
+
+redis — для сессий/кеша
+
+network – auto-created
+
+Команды Docker
+
+Запуск:
+
+docker compose up --build
+
+
+Остановка:
+
+docker compose down
+
+
+Посмотреть логи:
+
+docker compose logs -f backend
+docker compose logs -f frontend
+
+✔️ Что реализовано
+Backend
+
+✔ Регистрация
+✔ Логин
+✔ Хэширование паролей
+✔ JWT-аутентификация
+✔ Middleware защиты роутов
+✔ Автогенерация username
+✔ Валидация входных данных
+✔ Sequelize-модели + миграции
+✔ PostgreSQL + Redis интеграция
+
+Frontend
+
+✔ Страницы /login и /register
+✔ Защищённый маршрут /app
+✔ Хранение токена
+✔ Автоматическая авторизация после входа
+✔ API-клиент
+✔ UI компонентов
+
+Docker
+
+✔ Multi-stage сборка фронта
+✔ Nginx сервер
+✔ Backend + DB + Redis связаны в сеть
+✔ Волюм для PostgreSQL
+
+🎉 Итого
+
+Этот проект полностью готов к развитию:
+
+добавление WebSocket (чат);
+
+каналы/серверы, как в Discord;
+
+список друзей;
+
+аватарки, профили;
+
+уведомления, статусы онлайн.
+
+Хочешь — могу сделать красивый badge-стиль README или оформить как документацию на wiki.
 
 ## 📜 Лицензия
 
