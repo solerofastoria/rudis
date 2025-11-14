@@ -1,17 +1,16 @@
-// src/api/auth.ts
-import api from "./client";
+import axios from "./axios";
 
-export async function login(username: string, password: string) {
-  const res = await api.post("/auth/login", { username, password });
-  const token = res.data?.token;
-  if (token) localStorage.setItem("token", token);
-  return res.data;
-}
+// Регистрация
+export const register = async (username: string, email: string, password: string) => {
+  return axios.post("/auth/register", { username, email, password });
+};
 
-export async function register(username: string, password: string) {
-  return api.post("/auth/register", { username, password });
-}
+// Логин
+export const login = async (email: string, password: string) => {
+  return axios.post("/auth/login", { email, password });
+};
 
-export async function getCurrentUser() {
-  return api.get("/auth/me");
-}
+// Проверка пользователя
+export const getMe = async () => {
+  return axios.get("/auth/me");
+};

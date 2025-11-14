@@ -1,47 +1,36 @@
-// src/pages/Login.tsx
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { login } from "../api/auth";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
-  const [username, setUsername] = useState("");
+export default function Login() {
+  const { setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
-      await login(username, password);
-      window.location.href = "/";
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Ошибка авторизации");
+      const res = await login(email, password);
+
+      const { user, token } = res.data.data;
+
+      localStorage.setItem("token", token);
+      setUser(user);
+
+      navigate("/app");
+    } catch (e) {
+      console.error(e);
     }
   };
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h1 className="text-2xl font-bold mb-4">Вход в Sputnik Voice</h1>
-      <form onSubmit={handleLogin} className="flex flex-col gap-3 w-64">
-        <input
-          className="border rounded p-2"
-          placeholder="Логин"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          className="border rounded p-2"
-          placeholder="Пароль"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          className="bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700"
-          type="submit"
-        >
-          Войти
-        </button>
-      </form>
+    <div>
+      <h2>Вход</h2>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+      <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Пароль" />
+      <button onClick={handleLogin}>Войти</button>
     </div>
   );
 }
