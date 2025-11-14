@@ -15,6 +15,6 @@ router.post('/login', authController.login);
 // Защищенные маршруты
 router.get('/me', authenticate, authController.getMe);
 router.post('/logout', authenticate, authController.logout);
+console.log('✅ auth.routes.js загружен');
 
 module.exports = router;
-console.log('✅ auth.routes.js загружен');
