@@ -3,7 +3,7 @@ import sun from "./assets/Frame.svg";
 import moon from "./assets/Frame-night.svg";
 import "./App.css";
 import axios from "axios";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {  Routes, Route } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
@@ -127,11 +127,9 @@ function AppPage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/app" element={<AppPage />} />
       </Routes>
-    </BrowserRouter>
   );
 }
