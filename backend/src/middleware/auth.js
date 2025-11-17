@@ -1,31 +1,25 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../models/User");
 
-exports.authenticate = async (req, res, next) => {
+const authenticate = (req, res, next) => {
   try {
-    const header = req.headers.authorization;
+    const header = req.header("Authorization");
 
     if (!header) {
-      return res.status(401).json({ message: "Authorization header missing" });
+      return res.status(401).json({ message: "Нет токена" });
     }
 
-    const token = header.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ message: "Token missing" });
-    }
+    const token = header.startsWith("Bearer ")
+      ? header.split(" ")[1]
+      : header;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.userId);
 
-    if (!user) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-
-    req.user = user;
+    req.user = decoded;
     next();
   } catch (e) {
-    console.error("Auth error:", e);
-    res.status(401).json({ message: "Unauthorized" });
+    console.error("JWT ERROR:", e.message);
+    res.status(401).json({ message: "Неверный токен" });
   }
 };
+
+module.exports = authenticate;

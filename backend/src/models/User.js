@@ -25,6 +25,7 @@ const User = sequelize.define('User', {
       isEmail: true
     }
   },
+  
   password: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -39,6 +40,10 @@ const User = sequelize.define('User', {
   status: {
     type: DataTypes.ENUM('online', 'offline', 'idle', 'dnd'),
     defaultValue: 'offline'
+  },
+  online: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
   lastSeen: {
     type: DataTypes.DATE,

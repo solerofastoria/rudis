@@ -11,6 +11,8 @@ app.use(express.json());
 // 🔧 Подключаем маршруты
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authRoutes);
+app.use("/api/status", require("./routes/status.routes"));
+app.use("/api/users", require("./routes/users.routes"));
 
 // Тестовый маршрут
 app.get('/api/health', (req, res) => {
