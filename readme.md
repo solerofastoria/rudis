@@ -1,181 +1,114 @@
-# 🧩 Chat System — Техническая документация
+🎧 Discord Clone — Fullstack (React + Node.js + Docker)
 
-## 📖 Обзор
 
-**Chat System** — это распределённая платформа для обмена сообщениями и голосовой связи, вдохновлённая архитектурой Discord. Система объединяет REST API, WebSocket и WebRTC для общения в реальном времени.
 
----
 
-## ⚙️ Архитектура
 
-```text
-┌────────────┐   HTTP / WebSocket   ┌──────────────┐
-│   Client   │◄───────────────────►│    Backend   │
-│ (Web App)  │                     │(API + WS + Signal)│
-└────────────┘                     └──────────────┘
-                                         │
-                                         ▼
-                             ┌──────────────┐
-                             │ PostgreSQL   │
-                             │ Redis (Pub/Sub) │
-                             └──────────────┘
-                                         │
-                                         ▼
-                                   ┌─────────┐
-                                   │   SFU   │
-                                   │ (WebRTC)│
-                                   └─────────┘
+
+
+
+
+
+📌 О проекте
+
+Полноценный клон Discord, построенный на современном fullstack-стеке:
+авторизация через JWT, хранение пользователей в PostgreSQL, хранение сессий в Redis.
+
+Проект полностью контейнеризован:
+Frontend + Backend + PostgreSQL + Redis + Nginx работают внутри Docker.
+
+⚡ Всё запускается одной командой —
+```txt
+docker compose up -d.
+```
+📁 Архитектура проекта
+
+```txt
+root/
+│── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── utils/
+│   │   └── server.js
+│   ├── Dockerfile
+│   └── package.json
+│
+│── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── Dockerfile
+│   └── package.json
+│
+│── nginx/
+│   └── default.conf
+│
+└── docker-compose.yml
 ```
 
-### Основные компоненты
-- 🌐 **API** — REST/GraphQL интерфейс для данных.
-- 🔌 **WebSocket** — обмен событиями в реальном времени.
-- 📡 **Signaling Server** — управление WebRTC-сессиями.
-- 🧰 **Redis** — Pub/Sub, кэш, статусы пользователей.
-- 🐘 **PostgreSQL** — основное хранилище данных.
-- 🎧 **SFU-сервер** — маршрутизация медиапотоков для групповых звонков.
 
----
+🧩 Стек технологий
+🎨 Frontend
 
-## 🔐 Аутентификация
+React + TypeScript.
+Vite.
+Context API.
+JWT Auth.
+Axios.
+TailwindCSS
 
-JWT + Refresh токены.
+🛠 Backend
 
-| Метод | Эндпоинт | Описание |
-|-------|-----------|----------|
-| `POST` | `/api/auth/register` | Регистрация |
-| `POST` | `/api/auth/login` | Вход |
-| `POST` | `/api/auth/logout` | Выход |
-| `POST` | `/api/auth/refresh` | Обновление токена |
-| `GET`  | `/api/auth/me` | Текущий пользователь |
+#Node.js (Express).
+#equelize ORM.
+PostgreSQL.
+Redis.
+JWT авторизация.
+Middleware + Controllers архитектура
 
----
+🐳 DevOps & Infrastructure
 
-## 👥 Пользователи и Сообщества
+Docker
+Docker Compose
+Multi-stage Dockerfile
+Nginx reverse proxy
+Автоматическая сборка frontend → Nginx
 
-| Раздел | Примеры эндпоинтов | Назначение |
-|--------|--------------------|-------------|
-| **Пользователи** | `/api/users/:id`, `/api/users/search` | Получение и обновление профиля, поиск, друзья |
-| **Серверы (Guilds)** | `/api/servers`, `/api/servers/:id` | Создание и управление серверами |
-| **Каналы** | `/api/servers/:serverId/channels` | Создание и настройка текстовых/голосовых каналов |
-
----
-
-## 💬 Сообщения и Реальное время
-
-### REST API
-```bash
-GET    /api/channels/:channelId/messages
-POST   /api/channels/:channelId/messages
-PUT    /api/messages/:messageId
-DELETE /api/messages/:messageId
+🚀 Запуск проекта
+1️⃣ Создать .env в папке /backend
+```txt
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=discord
+JWT_SECRET=your_secret_key
+REDIS_HOST=redis
+REDIS_PORT=6379
 ```
-
-### WebSocket события
-```js
-socket.emit('message:send', { channelId, content })
-socket.on('message:new', (msg) => ...)
-socket.on('message:update', (msg) => ...)
-socket.on('message:delete', (id) => ...)
+2️⃣ Запусти проект
+```txt
+docker compose up -d
 ```
+3️⃣ Приложение будет доступно по адресу:
 
----
+Frontend: http://localhost:3000
 
-## 🎤 Голосовая связь (WebRTC)
+Backend API: http://localhost:5000
 
-Два режима:
+🎯 Функционал
 
-| Режим | Описание |
-|-------|-----------|
-| **P2P** | до 4–6 участников, минимальная задержка |
-| **SFU** | групповые звонки через медиасервер |
+Регистрация
 
-**Signaling через WebSocket:**
-```js
-socket.emit('voice:offer', { offer, targetUserId })
-socket.emit('voice:answer', { answer })
-socket.emit('voice:ice-candidate', { candidate })
-socket.emit('voice:join', { channelId })
-socket.on('voice:user-joined', (user) => ...)
-```
+Авторизация
 
----
+JWT токены + защита маршрутов
 
-## 🧱 Модели данных
+Генерация уникального username
 
-**User**
-```json
-{
-  "id": "string",
-  "username": "string",
-  "avatar": "url",
-  "status": "online | offline | idle | dnd"
-}
-```
+Проверка токена на стороне фронтенда
 
-**Server**
-```json
-{
-  "id": "string",
-  "name": "string",
-  "ownerId": "string",
-  "icon": "url"
-}
-```
-
-**Channel**
-```json
-{
-  "id": "string",
-  "serverId": "string",
-  "name": "string",
-  "type": "text | voice"
-}
-```
-
-**Message**
-```json
-{
-  "id": "string",
-  "channelId": "string",
-  "authorId": "string",
-  "content": "string",
-  "timestamp": "ISO8601"
-}
-```
-
----
-
-## 🧩 Технологии
-
-| Компонент | Технология |
-|------------|------------|
-| Backend | Node.js + Express / NestJS |
-| Database | PostgreSQL |
-| Cache / PubSub | Redis |
-| Auth | JWT |
-| Realtime | WebSocket |
-| Voice / Video | WebRTC + SFU |
-| Frontend | React / Next.js |
-
----
-
-## 🚀 Быстрый старт (Dev)
-
-```bash
-# 1. Клонирование репозитория
-git clone https://github.com/your-org/chat-system
-
-# 2. Установка зависимостей
-npm install
-
-# 3. Запуск
-npm run dev
-```
-
----
-
-## 📜 Лицензия
-
-MIT © 2025 — Chat System Project.
+Полный CI/CD-friendly Docker стек
 
