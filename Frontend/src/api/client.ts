@@ -1,30 +1,18 @@
-// src/api/client.ts
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://backend:5000/api", // проксируется на backend через vite.config.ts
-  withCredentials: true, // если backend использует cookie
+  baseURL: "/api", // работает через proxy в Docker Nginx
+  withCredentials: true, // ОБЯЗАТЕЛЬНО
 });
+// ⚠️ УДАЛЯЕМ interceptor с localStorage
+// Cookie автоматически отправляются браузером
+// Поэтому никакие Authorization headers НЕ нужны
 
-// 🔐 Добавляем токен авторизации (если он есть)
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// ⚠️ Обработка ошибок
+// Обработка ошибок
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("API Error:", error.response?.data || error.message);
-    if (error.response?.status === 401) {
-      console.warn("Неавторизован — сбрасываем токен");
-      localStorage.removeItem("token");
-      // можно перенаправить на /login, если нужно
-    }
     return Promise.reject(error);
   }
 );
