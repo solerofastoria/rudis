@@ -1,25 +1,29 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const authenticate = (req, res, next) => {
+async function authenticate(req, res, next) {
   try {
-    const header = req.header("Authorization");
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
-    if (!header) {
-      return res.status(401).json({ message: "Нет токена" });
+    if (!token) {
+      return res.status(401).json({ message: "Нет токена, доступ запрещён" });
     }
-
-    const token = header.startsWith("Bearer ")
-      ? header.split(" ")[1]
-      : header;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded;
+    const user = await User.findByPk(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ message: "Пользователь не найден" });
+    }
+
+    req.user = user;
     next();
+
   } catch (e) {
-    console.error("JWT ERROR:", e.message);
+    console.error("AUTH ERROR:", e);
     res.status(401).json({ message: "Неверный токен" });
   }
-};
+}
 
 module.exports = authenticate;

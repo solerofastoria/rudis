@@ -1,18 +1,23 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const corsOptions = require('./config/cors');
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // preflight
 app.use(express.json());
+app.use(require("cookie-parser")());
 
-// 🔧 Подключаем маршруты
+//  Подключаем маршруты
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authRoutes);
 app.use("/api/status", require("./routes/status.routes"));
 app.use("/api/users", require("./routes/users.routes"));
+
+
 
 // Тестовый маршрут
 app.get('/api/health', (req, res) => {

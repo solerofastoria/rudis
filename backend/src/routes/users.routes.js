@@ -1,59 +1,41 @@
 const { Router } = require("express");
 const User = require("../models/User");
-const auth = require("../middleware/auth");
+const authenticate = require("../middleware/auth");
+const { success, error } = require("../utils/response");
 
-console.log("🔥 users.routes подключён");
 const router = Router();
-router.use(auth);
+router.use(authenticate);
 
-/**
- * GET /api/users
- * Получить всех пользователей
- */
+// GET /api/users
 router.get("/", async (req, res) => {
   const users = await User.findAll();
-  res.json(users);
+  return success(res, users);
 });
 
-/**
- * GET /api/users/:id
- * Получить профиль пользователя
- */
+// GET /api/users/:id
 router.get("/:id", async (req, res) => {
   const user = await User.findByPk(req.params.id);
 
-  if (!user) {
-    return res.status(404).json({ message: "Пользователь не найден" });
-  }
+  if (!user) return error(res, "Пользователь не найден", 404);
 
-  res.json(user);
+  return success(res, user);
 });
 
-/**
- * PUT /api/users/:id
- * Обновить профиль
- */
+// PUT /api/users/:id
 router.put("/:id", async (req, res) => {
   const { username, avatar } = req.body;
-
   const user = await User.findByPk(req.params.id);
 
-  if (!user) {
-    return res.status(404).json({ message: "Пользователь не найден" });
-  }
+  if (!user) return error(res, "Пользователь не найден", 404);
 
   user.username = username ?? user.username;
   user.avatar = avatar ?? user.avatar;
-
   await user.save();
 
-  res.json({ message: "Профиль обновлён", user });
+  return success(res, user, "Профиль обновлён");
 });
 
-/**
- * GET /api/users/search/:query
- * Поиск пользователей
- */
+// SEARCH /api/users/search/:query
 router.get("/search/:query", async (req, res) => {
   const { query } = req.params;
 
@@ -62,12 +44,12 @@ router.get("/search/:query", async (req, res) => {
       username: require("sequelize").where(
         require("sequelize").fn("LOWER", require("sequelize").col("username")),
         "LIKE",
-        "%" + query.toLowerCase() + "%"
+        `%${query.toLowerCase()}%`
       ),
     },
   });
 
-  res.json(users);
+  return success(res, users);
 });
 
 module.exports = router;
