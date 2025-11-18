@@ -11,6 +11,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    environment:
+      - NODE_ENV=development
+      - CORS_ORIGIN=http://localhost:3000
     networks:
       - discord-network
 
