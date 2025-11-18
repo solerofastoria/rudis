@@ -79,14 +79,17 @@ Nginx reverse proxy
 🚀 Запуск проекта
 1️⃣ Создать .env в папке /backend
 ```txt
+PORT=5000
 DB_HOST=postgres
 DB_PORT=5432
 DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=discord
-JWT_SECRET=your_secret_key
+DB_PASSWORD=password
+DB_NAME=discord_clone
 REDIS_HOST=redis
 REDIS_PORT=6379
+JWT_SECRET=supersecretkey
+JWT_EXPIRES_IN=7d
+
 ```
 2️⃣ Запусти проект
 ```txt
