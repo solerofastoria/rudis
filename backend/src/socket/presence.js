@@ -1,38 +1,41 @@
-const redis = require("../config/redis");
+const { redisClient } = require("../config/redis");
 
 module.exports = (io) => {
   io.on("connection", async (socket) => {
-    console.log("User connected:", socket.id);
+    console.log("🟢 Пользователь подключен");
 
     const userId = socket.handshake.query.userId;
-    if (!userId) return;
 
-    // Помечаем пользователя как онлайн
-    await redis.set(`user:${userId}:online`, "1");
-    await redis.set(`user:${userId}:lastSeen`, Date.now());
+    if (userId) {
+      await redisClient.set(`user:${userId}:online`, "1");
+      await redisClient.set(`user:${userId}:lastSeen`, Date.now());
+      io.emit("user:online", { userId });
+    }
 
-    io.emit("user:online", { userId });
-
-    // === TYPING EVENTS ===
-    socket.on("typing:start", (data) => {
-      io.to(data.chatId).emit("typing:start", { userId });
+    socket.on("chat:send", (msg) => {
+      io.emit("chat:newMessage", msg);
     });
 
-    socket.on("typing:stop", (data) => {
-      io.to(data.chatId).emit("typing:stop", { userId });
+    socket.on("typing:start", ({ chatId }) => {
+      io.to(chatId).emit("typing:start", { userId });
     });
 
-    // === DISCONNECT ===
+    socket.on("typing:stop", ({ chatId }) => {
+      io.to(chatId).emit("typing:stop", { userId });
+    });
+
     socket.on("disconnect", async () => {
-      console.log("User disconnected:", socket.id);
+      console.log("🔴 Пользователь отключился:", socket.id);
 
-      await redis.del(`user:${userId}:online`);
-      await redis.set(`user:${userId}:lastSeen`, Date.now());
+      if (userId) {
+        await redisClient.del(`user:${userId}:online`);
+        await redisClient.set(`user:${userId}:lastSeen`, Date.now());
 
-      io.emit("user:offline", {
-        userId,
-        lastSeen: Date.now(),
-      });
+        io.emit("user:offline", {
+          userId,
+          lastSeen: Date.now()
+        });
+      }
     });
   });
 };

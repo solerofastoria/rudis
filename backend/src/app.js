@@ -1,97 +1,77 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const corsOptions = require('./config/cors');
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+const http = require("http");
+const { Server } = require("socket.io");
+const corsOptions = require("./config/cors");
 
 const app = express();
 
+// HTTP сервер
+const server = http.createServer(app);
+
+// WebSocket сервер
+const io = new Server(server, {
+  path: "/socket.io/",
+  cors: corsOptions
+});
+
 // Middleware
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // preflight
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(require("cookie-parser")());
 
-//  Подключаем маршруты
-const authRoutes = require('./routes/auth.routes');
-app.use('/api/auth', authRoutes);
+// Routes
+app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/status", require("./routes/status.routes"));
 app.use("/api/users", require("./routes/users.routes"));
 
-
-
-// Тестовый маршрут
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: 'Express сервер работает',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
+// --- тестовые маршруты ---
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK" });
 });
 
-// Простой маршрут для теста
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: 'API работает!',
-    endpoints: [
-      '/api/health',
-      '/api/test', 
-      '/api/db-check'
-    ]
-  });
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API работает!" });
 });
 
-// Маршрут для проверки подключения к БД
-app.get('/api/db-check', async (req, res) => {
+app.get("/api/db-check", async (req, res) => {
   try {
-    // Динамически импортируем чтобы избежать ошибок при запуске
-    const { testConnection } = require('./config/database');
-    
-    console.log('🔧 Проверка подключения к БД...');
+    const { testConnection } = require("./config/database");
     await testConnection();
-    
-    res.json({ 
-      status: 'SUCCESS', 
-      message: 'База данных подключена успешно!',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('❌ Ошибка БД:', error.message);
-    res.status(500).json({
-      status: 'ERROR',
-      message: 'Не удалось подключиться к базе данных',
-      error: error.message,
-      solution: 'Проверьте что контейнеры запущены: docker ps'
-    });
+    res.json({ status: "DB OK" });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
+// Redis
+const { connectRedis } = require("./config/redis");
 
-
-// Запуск сервера
+// Запуск
 const PORT = process.env.PORT || 5000;
 
 (async () => {
+  // DB sync
   try {
-    const { sequelize } = require('./config/database');
-    console.log('🗄  Синхронизация моделей с БД...');
-    await sequelize.sync({ alter: true });
-    console.log(' Модели успешно синхронизированы!');
-  } catch (err) {
-    console.error(' Ошибка при синхронизации БД:', err.message);
+    const { sequelize } = require("./config/database");
+    await sequelize.sync();
+  } catch (e) {
+    console.error("DB Sync Error:", e.message);
   }
-})();
-app.listen(PORT, () => {
-  console.log('=' .repeat(50));
-  console.log(` Сервер запущен на порту ${PORT}`);
-  console.log(` Health: http://localhost:${PORT}/api/health`);
-  console.log(` Test: http://localhost:${PORT}/api/test`);
-  console.log(` DB Check: http://localhost:${PORT}/api/db-check`);
-  console.log('=' .repeat(50));
-  console.log('💡 Если DB Check не работает:');
-  console.log('   1. Проверь контейнеры: docker ps');
-  console.log('   2. Пересоздай контейнеры: npm run db:reset');
-  console.log('   3. Проверь настройки в .env файле');
-});
 
-module.exports = app;
+  // Redis
+  await connectRedis();
+
+  // Socket logic
+  const initPresence = require("./socket/presence");
+  initPresence(io);
+
+  // RUN SERVER
+  server.listen(PORT, () => {
+    console.log(`🚀 Сервер + WebSocket запущены на порту ${PORT}`);
+  });
+})();
+
+module.exports = { app, server, io };
