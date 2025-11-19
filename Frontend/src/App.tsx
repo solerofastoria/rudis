@@ -2,9 +2,12 @@ import { useState } from "react";
 import sun from "./assets/Frame.svg";
 import moon from "./assets/Frame-night.svg";
 import "./App.css";
-import axios from "axios";
-import {  Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth";
+import { login, register } from "./api/auth";
+import { SocketProvider } from "./context/SocketContext";
+import ChatPage from "./pages/Main/ChatPage";
 
 function LoginPage() {
   const [isLight, setIsLight] = useState(false);
@@ -12,10 +15,6 @@ function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const api = axios.create({
-    baseURL: "http://localhost:5000/api",
-  });
 
   const navigate = useNavigate();
 
@@ -27,11 +26,7 @@ function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await api.post("/auth/login", { email, password });
-      const { token } = res.data.data;
-
-      localStorage.setItem("token", token);
-
+      await login(email, password);
       navigate("/app");
     } catch (err) {
       alert("Ошибка входа");
@@ -41,12 +36,7 @@ function LoginPage() {
   const handleRegister = async () => {
     try {
       const username = email.split("@")[0];
-
-      const res = await api.post("/auth/register", { email, password, username });
-      const { token } = res.data.data;
-
-      localStorage.setItem("token", token);
-
+      await register(username, email, password);
       navigate("/app");
     } catch (err) {
       alert("Ошибка регистрации");
@@ -98,38 +88,57 @@ function LoginPage() {
 }
 
 function AppPage() {
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  const logout = async () => {
+    try {
+      // Remove token from localStorage if it exists
+      localStorage.removeItem("token");
+      // Redirect to login page
+      navigate("/");
+    } catch (err) {
+      console.error("Ошибка выхода", err);
+    }
   };
 
-  return (
-    <div style={{ padding: 40 }}>
-      <h1>🎉 Добро пожаловать в приложение!</h1>
-      <p>Вы успешно вошли.</p>
+  if (loading) return <p>Загрузка...</p>;
+  if (!user) {
+    navigate("/");
+    return null;
+  }
 
-      <button
-        onClick={logout}
-        style={{
-          marginTop: 20,
-          padding: "10px 20px",
-          fontSize: "18px",
-          cursor: "pointer",
-        }}
-      >
-        Выйти
-      </button>
-    </div>
+  return (
+    <SocketProvider>
+      <div style={{ padding: 40 }}>
+        <h1>🎉 Добро пожаловать в приложение!</h1>
+        <p>Вы успешно вошли.</p>
+
+        <button
+          onClick={logout}
+          style={{
+            marginTop: 20,
+            padding: "10px 20px",
+            fontSize: "18px",
+            cursor: "pointer",
+          }}
+        >
+          Выйти
+        </button>
+
+        <div style={{ marginTop: 40 }}>
+          <ChatPage />
+        </div>
+      </div>
+    </SocketProvider>
   );
 }
 
 export default function App() {
   return (
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/app" element={<AppPage />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/app" element={<AppPage />} />
+    </Routes>
   );
 }

@@ -13,6 +13,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/socket.io': {
+        target: 'http://backend:5000',
+        changeOrigin: true,
+        ws: true, // включаем поддержку WebSocket
+      }
     },
   },
 })

@@ -20,18 +20,13 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     async function init() {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
         const res = await getMe();
         setUser(res.data.data.user);
-      } catch {
-        localStorage.removeItem("token");
+      } catch (error) {
+        // If getMe fails, it means user is not authenticated
+        // setUser is already null by default, so no need to set it
+        console.log("User not authenticated");
       }
 
       setLoading(false);
