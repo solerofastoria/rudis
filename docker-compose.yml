@@ -4,8 +4,6 @@ services:
     container_name: discord_clone_backend
     ports:
       - "5000:5000"
-    env_file:
-      - ./backend/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -14,6 +12,17 @@ services:
     environment:
       - NODE_ENV=development
       - CORS_ORIGIN=http://localhost:3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=discord_clone
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your_super_secret_jwt_key_here
+      - JWT_EXPIRES_IN=7d
+      - FRONTEND_URL=http://localhost:3000
+      - PORT=5000
     networks:
       - discord-network
 
@@ -23,8 +32,7 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      backend:
-        condition: service_started
+      - backend
     networks:
       - discord-network
 
