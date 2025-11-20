@@ -26,6 +26,7 @@ app.use(require("cookie-parser")());
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/status", require("./routes/status.routes"));
 app.use("/api/users", require("./routes/users.routes"));
+app.use("/api/messages", require("./routes/messages.routes"));
 
 // --- тестовые маршруты ---
 app.get("/api/health", (req, res) => {
@@ -66,7 +67,9 @@ const PORT = process.env.PORT || 5000;
 
   // Socket logic
   const initPresence = require("./socket/presence");
+  const initMessages = require("./socket/messages");
   initPresence(io);
+  initMessages(io);
 
   // RUN SERVER
   server.listen(PORT, () => {
