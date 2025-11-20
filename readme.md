@@ -120,4 +120,154 @@ JWT токены + защита маршрутов
 Полный CI/CD-friendly Docker стек
 📘 Документация API (Backend)
 
+<<<<<<< HEAD
+Чат в реальном времени с Socket.IO
+=======
+🛡 Аутентификация (Auth)
+🔹 1. Регистрация пользователя
+POST /api/auth/register
+📤 Пример запроса (body)
 
+```txt
+{
+  "email": "test@example.com",
+  "password": "123456",
+  "username": "testuser"
+}
+```
+
+⚠️ username не обязательно — создаётся автоматически из email.
+
+📥 Пример ответа (успех)
+```txt
+{
+  "success": true,
+  "message": "Регистрация успешна",
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@example.com"
+    },
+    "token": "jwt_token"
+  }
+}
+```
+🍪 Cookie
+
+Сервер устанавливает:
+```txt
+Set-Cookie: token=JWT; HttpOnly; SameSite=Lax
+```
+🔹 2. Вход пользователя
+POST /api/auth/login
+📤 Пример запроса (body)
+```txt
+{
+  "email": "test@example.com",
+  "password": "123456"
+}
+```
+📥 Пример ответа
+```txt
+{
+  "success": true,
+  "message": "Вход выполнен",
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@example.com"
+    },
+    "token": "jwt_token"
+  }
+}
+```
+🍪 Cookie
+
+Устанавливается cookie "token"
+(хранится безопасно, httpOnly).
+
+🔹 3. Получение данных о себе (требуется авторизация)
+GET /api/auth/me
+🔐 Требуется cookie token
+📥 Пример ответа
+```txt
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@example.com"
+    }
+  }
+}
+```
+
+Если токен неверный / нет cookie:
+```txt
+{
+  "success": false,
+  "message": "Не авторизован"
+}
+```
+
+🔹 4. Выход (очистка cookie)
+POST /api/auth/logout
+📥 Пример ответа:
+{
+```txt
+  "success": true,
+  "message": "Выход выполнен",
+  "data": null
+}
+```
+🍪 Cookie очищается:
+Set-Cookie: token=""; Max-Age=0
+
+⚙ Системные методы
+🔹 5. Проверка состояния сервера
+GET /api/health
+📥 Пример ответа:
+```txt
+{
+  "status": "OK",
+  "message": "Express сервер работает",
+  "timestamp": "2025-11-18T12:00:00.000Z",
+  "environment": "development"
+}
+```
+🔹 6. Тестовый метод
+GET /api/test
+📥 Пример ответа:
+```txt
+{
+  "message": "API работает!",
+  "endpoints": [
+    "/api/health",
+    "/api/test",
+    "/api/db-check"
+  ]
+}
+```
+🔹 7. Проверка подключения к БД
+GET /api/db-check
+📥 Пример успешного ответа:
+```txt
+{
+  "status": "SUCCESS",
+  "message": "База данных подключена успешно!",
+  "timestamp": "2025-11-18T12:00:00.000Z"
+}
+```
+📥 Пример ошибки:
+```txt
+{
+  "status": "ERROR",
+  "message": "Не удалось подключиться к базе данных",
+  "error": "database timeout",
+  "solution": "Проверьте что контейнеры запущены: docker ps"
+}
+```
+>>>>>>> 04cfb976d3e661af43e59ebfd49fc03db13fa785
