@@ -19,9 +19,12 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("Инициализация AuthContext");
     async function init() {
       try {
+        console.log("Получение данных пользователя");
         const res = await getMe();
+        console.log("Данные пользователя получены:", res.data.data.user);
         setUser(res.data.data.user);
       } catch (error) {
         // If getMe fails, it means user is not authenticated

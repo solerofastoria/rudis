@@ -1,6 +1,13 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { AuthContext } from './AuthContext';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { io, Socket } from "socket.io-client";
+import { AuthContext } from "./AuthContext";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -9,56 +16,107 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-interface SocketProviderProps {
-  children: ReactNode;
-}
-
-export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
+export const SocketProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const { user } = React.useContext(AuthContext);
+  console.log("Инициализация состояния сокета:", { socket, isConnected });
+
+  const { user } = useContext(AuthContext);
+  console.log("Получен пользователь из AuthContext:", user);
 
   useEffect(() => {
-  if (user) {
-    const newSocket = io('http://localhost:5000', {
+    if (!user) return;
+
+    console.log("Инициализация сокета для пользователя:", user.id);
+    // === Вариант 1: через прокси nginx (рекомендуется в Docker) ===
+    const newSocket = io("/", {
+      path: "/socket.io",
+      transports: ["websocket", "polling"],
       withCredentials: true,
-      query: {
-        userId: user.id
-      },
-      transports: ['websocket'] // только websocket
+      query: { userId: user.id },
     });
 
-    newSocket.on('connect', () => {
-      console.log('🟢 Socket connected', newSocket.id);
+    newSocket.on("connect", () => {
+      console.log("🟢 Socket connected:", newSocket.id);
       setIsConnected(true);
-
-      newSocket.emit('authenticate', { userId: user.id });
+    });
+    
+    newSocket.on("connect_error", (error) => {
+      console.log("❌ Socket connection error:", error);
+      console.log("Error details:", {
+        message: error.message,
+        stack: error.stack
+      });
+    });
+    
+    newSocket.on("disconnect", (reason) => {
+      console.log("🔴 Socket disconnected:", reason);
+      setIsConnected(false);
+    });
+    
+    // Добавим лог для отладки подключения
+    setTimeout(() => {
+      console.log("Состояние подключения через 1 секунду:", {
+        connected: newSocket.connected,
+        id: newSocket.id
+      });
+    }, 1000);
+    
+    // Проверим состояние сокета через 3 секунды
+    setTimeout(() => {
+      console.log("Состояние подключения через 3 секунды:", {
+        connected: newSocket.connected,
+        id: newSocket.id
+      });
+    }, 3000);
+    
+    newSocket.on("connect_error", (error) => {
+      console.log("❌ Socket connection error:", error);
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('🔴 Socket disconnected');
+    newSocket.on("disconnect", () => {
+      console.log("🔴 Socket disconnected");
       setIsConnected(false);
     });
 
+    newSocket.on("dm:new", (payload) => {
+      console.log("📩 DM received:", payload);
+    });
+    
+    newSocket.on("chat:message", (payload) => {
+      console.log("💬 Chat message received:", payload);
+      console.log("Тип данных:", typeof payload);
+      console.log("Содержание сообщения:", payload);
+      console.log("Время получения сообщения:", new Date().toISOString());
+    });
+
+    console.log("Сокет установлен");
+    console.log("Сокет установлен, проверяем его состояние:", {
+      connected: newSocket.connected,
+      id: newSocket.id
+    });
     setSocket(newSocket);
 
     return () => {
+      console.log("Очистка сокета");
+      newSocket.off();
       newSocket.close();
     };
-  }
-}, [user]);
+  }, [user]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider
+      value={{ socket, isConnected }}
+    >
       {children}
     </SocketContext.Provider>
   );
 };
 
 export const useSocket = () => {
-  const context = useContext(SocketContext);
-  if (context === undefined) {
-    throw new Error('useSocket must be used within a SocketProvider');
-  }
-  return context;
+  const ctx = useContext(SocketContext);
+  if (!ctx) throw new Error("useSocket must be used within SocketProvider");
+  return ctx;
 };

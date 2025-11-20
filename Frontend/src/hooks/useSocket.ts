@@ -14,8 +14,11 @@ export const useSocket = (): UseSocketReturn => {
 
   const emit = useCallback(
     (event: string, data?: any) => {
+      console.log("Отправка события:", event, data);
       if (isConnected && socket) {
         socket.emit(event, data);
+      } else {
+        console.log("Невозможно отправить событие, сокет не подключен:", { isConnected, socket: !!socket });
       }
     },
     [socket, isConnected]
@@ -23,9 +26,11 @@ export const useSocket = (): UseSocketReturn => {
 
   const on = useCallback(
     (event: string, callback: (...args: any[]) => void) => {
+      console.log("Подписка на событие:", event);
       if (socket) {
         socket.on(event, callback);
         return () => {
+          console.log("Отписка от события:", event);
           socket.off(event, callback);
         };
       }

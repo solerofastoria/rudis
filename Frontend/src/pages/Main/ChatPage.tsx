@@ -1,84 +1,83 @@
 import { useState, useEffect, useRef } from "react";
-import { useChat } from "../../features/chat/hooks/useChat";
+import { useMessages } from "../../features/chat/hooks/useMessages";
 import { useAuth } from "../../hooks/useAuth";
+import { MessageItem } from "../../components/MessageItem";
 
 const ChatPage = () => {
   const { user } = useAuth();
-  const { messages, isConnected, sendMessage } = useChat();
+  const { messages, isConnected, sendMessage, editMessage, deleteMessage } = useMessages();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleSend = () => {
-    if (newMessage.trim() && user) {
-      sendMessage(newMessage);
-      setNewMessage("");
-    }
+    if (!newMessage.trim()) return;
+    sendMessage(newMessage);
+    setNewMessage("");
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  if (!user) {
+    return <div>Загрузка...</div>;
+  }
+
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+    <div style={{ padding: 20, maxWidth: 800, margin: "0 auto", height: "100vh", display: "flex", flexDirection: "column" }}>
       <h1>Чат</h1>
-      <div style={{ marginBottom: "10px" }}>
-        Статус подключения: {isConnected ? "Подключен" : "Отключен"}
+      <div style={{ marginBottom: 10 }}>
+        Статус подключения: {isConnected ? "Подключено" : "Отключено"}
       </div>
-      
-      <div 
-        style={{ 
-          border: "1px solid #ccc", 
-          height: "400px", 
-          overflowY: "auto", 
-          padding: "10px",
-          marginBottom: "10px"
+
+      <div
+        style={{
+          flex: 1,
+          border: "1px solid #ccc",
+          padding: 10,
+          overflowY: "auto",
+          marginBottom: 10,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        {messages.map((msg) => (
-          <div key={msg.id} style={{ marginBottom: "10px" }}>
-            <strong>{msg.username}:</strong> {msg.content}
-            <div style={{ fontSize: "0.8em", color: "#666" }}>
-              {new Date(msg.timestamp).toLocaleTimeString()}
-            </div>
-          </div>
-        ))}
+        <div>Всего сообщений: {messages.length}</div>
+        {messages.length > 0 ? (
+          messages.map((msg) => (
+            <MessageItem
+              key={msg.id}
+              message={msg}
+              currentUserId={user.id}
+              onEdit={editMessage}
+              onDelete={deleteMessage}
+            />
+          ))
+        ) : (
+          <div>Нет сообщений</div>
+        )}
         <div ref={messagesEndRef} />
       </div>
-      
-      <div style={{ display: "flex" }}>
+
+      <div style={{ display: "flex", gap: 10 }}>
         <textarea
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Введите сообщение..."
-          style={{ 
-            flex: 1, 
-            padding: "10px", 
-            marginRight: "10px",
-            resize: "none"
-          }}
+          onKeyDown={handleKey}
           rows={3}
+          style={{ flex: 1, padding: 10 }}
+          placeholder="Введите сообщение..."
         />
         <button 
-          onClick={handleSend}
+          onClick={handleSend} 
           disabled={!isConnected || !newMessage.trim()}
-          style={{ 
-            padding: "10px 20px",
-            backgroundColor: isConnected ? "#007bff" : "#ccc",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: isConnected ? "pointer" : "not-allowed"
-          }}
+          style={{ padding: "10px 20px" }}
         >
           Отправить
         </button>

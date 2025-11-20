@@ -8,16 +8,18 @@ interface UseChatProps {
 }
 
 export const useChat = ({ chatId }: UseChatProps = {}) => {
-  const { socket, isConnected } = useSocket();
+  const { socket, isConnected, emit } = useSocket();
   const { user } = useAuth();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [typingUsers, setTypingUsers] = useState<ITypingUser[]>([]);
 
   // Listen for new messages
   useEffect(() => {
+    console.log("Инициализация useChat хука", { socket: !!socket, user: !!user });
     if (!socket) return;
 
     const handleMessage = (msg: IMessage) => {
+      console.log("📥 Получено новое сообщение:", msg);
       setMessages(prev => [...prev, msg]);
     };
 
@@ -34,12 +36,14 @@ export const useChat = ({ chatId }: UseChatProps = {}) => {
       setTypingUsers(prev => prev.filter(u => u.userId !== data.userId));
     };
 
-    socket.on('chat:newMessage', handleMessage);
+    console.log("Подписка на события чата");
+    socket.on('chat:message', handleMessage);
     socket.on('typing:start', handleTypingStart);
     socket.on('typing:stop', handleTypingStop);
 
     return () => {
-      socket.off('chat:newMessage', handleMessage);
+      console.log("Отписка от событий чата");
+      socket.off('chat:message', handleMessage);
       socket.off('typing:start', handleTypingStart);
       socket.off('typing:stop', handleTypingStop);
     };
@@ -48,8 +52,19 @@ export const useChat = ({ chatId }: UseChatProps = {}) => {
   // Send a message
   const sendMessage = useCallback(
     (content: string) => {
-      if (!socket || !user || !isConnected) return;
+      console.log("Проверка условий отправки сообщения:", { socket: !!socket, user: !!user, isConnected });
+      if (!socket || !user || !isConnected) {
+        console.log("❌ Отправка сообщения заблокирована из-за отсутствия необходимых условий");
+        return;
+      }
 
+      console.log("📤 Отправка сообщения через сокет:", { content, username: user.username });
+      emit('chat:send', {
+        content,
+        username: user.username,
+        timestamp: Date.now(),
+      });
+      // Добавляем сообщение в локальное состояние сразу для быстрого отображения
       const message: IMessage = {
         id: Date.now().toString(),
         content,
@@ -58,11 +73,9 @@ export const useChat = ({ chatId }: UseChatProps = {}) => {
         timestamp: Date.now(),
         chatId
       };
-
-      socket.emit('chat:send', message);
       setMessages(prev => [...prev, message]);
     },
-    [socket, user, isConnected, chatId]
+    [socket, user, isConnected, chatId, emit]
   );
 
   // Start typing indicator

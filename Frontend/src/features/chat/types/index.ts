@@ -4,20 +4,11 @@ export interface IMessage {
   userId: number;
   username: string;
   timestamp: number;
-  chatId?: string;
   isEdited?: boolean;
   editedAt?: number;
   isDirect?: boolean;
   recipientId?: number;
-}
-
-export interface ITypingUser {
-  userId: number;
-  username: string;
-}
-
-export interface IChatState {
-  messages: IMessage[];
-  typingUsers: ITypingUser[];
-  isConnected: boolean;
+  senderId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

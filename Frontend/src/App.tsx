@@ -6,8 +6,8 @@ import { Routes, Route } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { login, register } from "./api/auth";
-import { SocketProvider } from "./context/SocketContext";
 import ChatPage from "./pages/Main/ChatPage";
+import DirectMessagePage from "./pages/Main/DirectMessagePage";
 
 function LoginPage() {
   const [isLight, setIsLight] = useState(false);
@@ -109,28 +109,26 @@ function AppPage() {
   }
 
   return (
-    <SocketProvider>
-      <div style={{ padding: 40 }}>
-        <h1>🎉 Добро пожаловать в приложение!</h1>
-        <p>Вы успешно вошли.</p>
+    <div style={{ padding: 40 }}>
+      <h1>🎉 Добро пожаловать в приложение!</h1>
+      <p>Вы успешно вошли.</p>
 
-        <button
-          onClick={logout}
-          style={{
-            marginTop: 20,
-            padding: "10px 20px",
-            fontSize: "18px",
-            cursor: "pointer",
-          }}
-        >
-          Выйти
-        </button>
+      <button
+        onClick={logout}
+        style={{
+          marginTop: 20,
+          padding: "10px 20px",
+          fontSize: "18px",
+          cursor: "pointer",
+        }}
+      >
+        Выйти
+      </button>
 
-        <div style={{ marginTop: 40 }}>
-          <ChatPage />
-        </div>
+      <div style={{ marginTop: 40 }}>
+        <ChatPage />
       </div>
-    </SocketProvider>
+    </div>
   );
 }
 
@@ -139,6 +137,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/app" element={<AppPage />} />
+      <Route path="/dm/:userId" element={<DirectMessagePage />} />
     </Routes>
   );
 }
