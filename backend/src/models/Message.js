@@ -1,75 +1,26 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
-const User = require('./User');
-
-const Message = sequelize.define('Message', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
-  },
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true
-    }
-  },
-  // Для личных сообщений
-  isDirect: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  // ID получателя для личных сообщений
-  recipientId: {
-    type: DataTypes.UUID,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  // ID отправителя
-  senderId: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  // Флаг редактирования
-  isEdited: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  // Время последнего редактирования
-  editedAt: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  // Время создания
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  }
-}, {
-  tableName: 'messages',
-  indexes: [
-    {
-      fields: ['senderId']
+module.exports = (sequelize, DataTypes) => {
+  const Message = sequelize.define('Message', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true
     },
-    {
-      fields: ['recipientId']
-    },
-    {
-      fields: ['createdAt']
-    }
-  ]
-});
+    content: { type: DataTypes.TEXT, allowNull: false },
+    isDirect: { type: DataTypes.BOOLEAN, defaultValue: false },
+    recipientId: { type: DataTypes.UUID, allowNull: true },
+    senderId: { type: DataTypes.UUID, allowNull: false },
+    isEdited: { type: DataTypes.BOOLEAN, defaultValue: false },
+    editedAt: { type: DataTypes.DATE, allowNull: true },
+    isRead: { type: DataTypes.BOOLEAN, defaultValue: false }
+  }, {
+    tableName: 'messages',
+    timestamps: true
+  });
 
-// Связи
-Message.belongsTo(User, { as: 'sender', foreignKey: 'senderId' });
-Message.belongsTo(User, { as: 'recipient', foreignKey: 'recipientId' });
+  Message.associate = (models) => {
+    Message.belongsTo(models.User, { foreignKey: 'senderId', as: 'sender' });
+    Message.belongsTo(models.User, { foreignKey: 'recipientId', as: 'recipient' });
+  };
 
-module.exports = Message;
+  return Message;
+};

@@ -1,5 +1,4 @@
-const Message = require("../models/Message");
-const User = require("../models/User");
+const { Message, User } = require("../models");
 const { success, error } = require("../utils/response");
 
 // Получение всех сообщений (публичных)
@@ -74,6 +73,60 @@ exports.getDirectMessages = async (req, res) => {
   }
 };
 
+// Получение непрочитанных личных сообщений
+exports.getUnreadMessages = async (req, res) => {
+  try {
+    const currentUserId = req.user.id;
+
+    // Получаем id отправителей всех непрочитанных сообщений
+    const unreadMsgs = await Message.findAll({
+      where: {
+        isDirect: true,
+        recipientId: currentUserId,
+        isRead: false
+      },
+      attributes: ['senderId']
+    });
+
+    // Считаем количество по каждому senderId
+    const unreadCounts = unreadMsgs.reduce((acc, msg) => {
+      acc[msg.senderId] = (acc[msg.senderId] || 0) + 1;
+      return acc;
+    }, {});
+
+    return success(res, unreadCounts);
+  } catch (e) {
+    console.error("Get unread messages error:", e);
+    return error(res, "Ошибка сервера", 500);
+  }
+};
+
+// Пометить сообщения как прочитанные
+exports.markMessagesAsRead = async (req, res) => {
+  try {
+    const { userId } = req.params; // ID пользователя, чьи сообщения помечаем как прочитанные
+    const currentUserId = req.user.id;
+
+    // Помечаем все непрочитанные сообщения от этого пользователя как прочитанные
+    await Message.update(
+      { isRead: true },
+      {
+        where: {
+          isDirect: true,
+          senderId: userId,
+          recipientId: currentUserId,
+          isRead: false
+        }
+      }
+    );
+
+    return success(res, null, "Сообщения помечены как прочитанные");
+  } catch (e) {
+    console.error("Mark messages as read error:", e);
+    return error(res, "Ошибка сервера", 500);
+  }
+};
+
 // Создание нового сообщения
 exports.createMessage = async (req, res) => {
   try {
@@ -97,7 +150,8 @@ exports.createMessage = async (req, res) => {
       content: content.trim(),
       senderId,
       recipientId: isDirect ? recipientId : null,
-      isDirect: isDirect || false
+      isDirect: isDirect || false,
+      isRead: false // Новые сообщения по умолчанию непрочитаны
     });
 
     // Загружаем полную информацию о сообщении

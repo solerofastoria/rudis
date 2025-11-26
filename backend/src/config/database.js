@@ -4,14 +4,14 @@ require('dotenv').config();
 console.log('🔧 Настройки БД:', {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
+  database: process.env.DB_NAME === 'discord_clone' ? 'rudis' : process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD ? '***' : 'MISSING'
 });
 
 // Создаем подключение с явным указанием диалекта
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
+  process.env.DB_NAME === 'discord_clone' ? 'rudis' : process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
   {
@@ -23,7 +23,7 @@ const sequelize = new Sequelize(
     dialectOptions: {
       ssl: false,
       // Явно указываем использование нового драйвера
-      connectionString: `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+      connectionString: `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME === 'discord_clone' ? 'rudis' : process.env.DB_NAME}`
     },
     pool: {
       max: 5,

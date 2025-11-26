@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const { User } = require("../models");
 const { Op } = require("sequelize");
 const { generateToken } = require("../utils/jwt");
 const { validateRegistration } = require("../utils/validators");
@@ -8,11 +8,12 @@ const { success, error } = require("../utils/response");
 // Устанавливаем JWT в cookie
 const setAuthCookie = (res, token) => {
   const isProd = process.env.NODE_ENV === "production";
+  const isSecure = isProd || process.env.COOKIE_SECURE === "true";
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: false,                     // В prod — обязательно true
-    sameSite: "lax",  // sameSite=none работает ТОЛЬКО с secure=true
+    secure: isSecure,
+    sameSite: isSecure ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
@@ -90,10 +91,13 @@ exports.getMe = async (req, res) => {
 
 // ---------------- LOGOUT ----------------
 exports.logout = async (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
+  const isSecure = isProd || process.env.COOKIE_SECURE === "true";
+  
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    secure: isSecure,
+    sameSite: isSecure ? "none" : "lax",
   });
 
   return success(res, null, "Выход выполнен");

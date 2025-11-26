@@ -1,221 +1,218 @@
-const Message = require("../models/Message");
-const User = require("../models/User");
+const { Message, User } = require("../models");
+const { Op } = require("sequelize");
 
 module.exports = (io) => {
-  // Хранилище соответствий userId → socketId
+  // Namespace /messages
+  const messages = io.of("/messages");
+
+  // userId → socketId
   const userSockets = {};
 
-  io.on("connection", async (socket) => {
-    console.log("🟢 Пользователь подключен к messages:", socket.id);
-  
+  messages.on("connection", async (socket) => {
+    console.log("🟢 [messages] пользователь подключён:", socket.id);
+
+    // userId из query
     const userId = socket.handshake.query.userId;
-    console.log("User ID из handshake:", userId);
+    console.log("👉 User ID:", userId);
+
     if (!userId) {
-      console.log("❌ User ID не определен");
+      console.log("❌ Нет userId в handshake");
+      socket.disconnect();
       return;
     }
-  
-    // Сохраняем сокет пользователя
+
+    // сохраняем сокет
     userSockets[userId] = socket.id;
-    console.log("Сокет пользователя сохранен:", { userId, socketId: socket.id });
-  
-    // ======= ПОЛУЧЕНИЕ DM =======
+    console.log("🔗 userSockets:", userSockets);
+
+    // ====================================================
+    // 📩 ОТПРАВКА ЛИЧНОГО СООБЩЕНИЯ
+    // ====================================================
     socket.on("dm:send", async ({ toUserId, content }) => {
-      console.log(`📨 DM от ${userId} → ${toUserId}:`, content);
+      console.log(`📨 DM ${userId} → ${toUserId}:`, content);
 
       try {
-        // Создаем сообщение в базе данных
+        console.log("🔍 Создание сообщения с параметрами:", {
+          content: content.trim(),
+          senderId: userId,
+          recipientId: toUserId,
+          isDirect: true,
+          isRead: false,
+        });
+        
         const message = await Message.create({
           content: content.trim(),
           senderId: userId,
           recipientId: toUserId,
-          isDirect: true
+          isDirect: true,
+          isRead: false,
         });
+        
+        console.log("✅ Сообщение создано в БД:", message.toJSON());
 
-        // Загружаем полную информацию о сообщении
         const fullMessage = await Message.findByPk(message.id, {
           include: [
-            {
-              model: User,
-              as: 'sender',
-              attributes: ['id', 'username', 'avatar']
-            },
-            {
-              model: User,
-              as: 'recipient',
-              attributes: ['id', 'username', 'avatar']
-            }
-          ]
+            { model: User, as: "sender", attributes: ["id", "username", "avatar"] },
+            { model: User, as: "recipient", attributes: ["id", "username", "avatar"] },
+          ],
         });
 
-        // Преобразуем сообщение в простой объект
-        const messageToSend = fullMessage.get({ plain: true });
-        // Добавляем username отправителя и получателя
-        messageToSend.username = messageToSend.sender.username;
-        messageToSend.userId = messageToSend.sender.id;
-        messageToSend.timestamp = new Date(messageToSend.createdAt).getTime();
-        if (messageToSend.editedAt) {
-          messageToSend.editedAt = new Date(messageToSend.editedAt).getTime();
-        }
+        const msg = fullMessage.get({ plain: true });
+        msg.username = msg.sender.username;
+        msg.userId = msg.sender.id;
+        msg.timestamp = new Date(msg.createdAt).getTime();
+        if (msg.editedAt) msg.editedAt = new Date(msg.editedAt).getTime();
 
-        // Отправляем сообщение отправителю
-        socket.emit("dm:sent", messageToSend);
+        // отправляем себе
+        socket.emit("dm:sent", msg);
 
-        // Отправляем сообщение получателю, если он онлайн
+        // отправляем получателю
         const targetSocketId = userSockets[toUserId];
+        console.log("🔍 Target socket ID для пользователя", toUserId, ":", targetSocketId);
+        console.log("🔍 Все подключенные пользователи:", userSockets);
         if (targetSocketId) {
-          io.to(targetSocketId).emit("dm:new", messageToSend);
-          console.log("DM отправлено получателю:", { targetSocketId, content });
+          messages.to(targetSocketId).emit("dm:new", msg);
+          console.log("📤 dm:new отправлено", targetSocketId);
+          console.log("📤 Отправленное сообщение:", msg);
         } else {
-          console.log("❌ Получатель оффлайн, DM сохранен в базе");
+          console.log("❌ Не удалось отправить DM: сокет пользователя не найден");
         }
-      } catch (error) {
-        console.error("Ошибка отправки DM:", error);
+
+        // обновляем счётчик непрочитанных
+        if (targetSocketId) {
+          const unread = await Message.count({
+            where: {
+              isDirect: true,
+              recipientId: toUserId,
+              isRead: false,
+            },
+          });
+
+          messages.to(targetSocketId).emit("unread:update", {
+            userId,
+            count: unread,
+          });
+        }
+
+      } catch (e) {
+        console.error("❌ Ошибка DM:", e);
         socket.emit("dm:error", { message: "Ошибка отправки сообщения" });
+        console.log("❌ Ошибка DM отправлена клиенту:", { message: "Ошибка отправки сообщения" });
       }
     });
 
-    // ======= ПУБЛИЧНЫЕ СООБЩЕНИЯ =======
-    socket.on("chat:send", async ({ content, username }) => {
-      console.log(`💬 PUBLIC MESSAGE от ${username}: ${content}`);
+    // ====================================================
+    // 💬 ПУБЛИЧНЫЙ ЧАТ
+    // ====================================================
+    socket.on("chat:send", async ({ content }) => {
+      console.log(`💬 PUBLIC от ${userId}: ${content}`);
 
       try {
-        // Создаем сообщение в базе данных
         const messageData = await Message.create({
           content: content.trim(),
           senderId: userId,
-          isDirect: false
+          isDirect: false,
         });
 
-        // Загружаем полную информацию о сообщении
         const fullMessage = await Message.findByPk(messageData.id, {
-          include: [
-            {
-              model: User,
-              as: 'sender',
-              attributes: ['id', 'username', 'avatar']
-            }
-          ]
+          include: [{ model: User, as: "sender", attributes: ["id", "username", "avatar"] }],
         });
 
-        console.log("📤 Отправка сообщения всем клиентам:", fullMessage);
-        // Преобразуем сообщение в простой объект
-        const messageToSend = fullMessage.get({ plain: true });
-        // Добавляем username отправителя
-        messageToSend.username = messageToSend.sender.username;
-        messageToSend.userId = messageToSend.sender.id;
-        messageToSend.timestamp = new Date(messageToSend.createdAt).getTime();
-        if (messageToSend.editedAt) {
-          messageToSend.editedAt = new Date(messageToSend.editedAt).getTime();
-        }
+        const msg = fullMessage.get({ plain: true });
+        msg.username = msg.sender.username;
+        msg.userId = msg.sender.id;
+        msg.timestamp = new Date(msg.createdAt).getTime();
+        if (msg.editedAt) msg.editedAt = new Date(msg.editedAt).getTime();
 
-        console.log("📤 Отправка сообщения всем клиентам:", messageToSend);
-        io.emit("chat:message", messageToSend);
-        console.log("✅ Сообщение отправлено всем клиентам");
-      } catch (error) {
-        console.error("Ошибка отправки сообщения:", error);
-        socket.emit("chat:error", { message: "Ошибка отправки сообщения" });
+        messages.emit("chat:message", msg);
+        console.log("📤 chat:message отправлено всем:", msg);
+
+      } catch (e) {
+        console.error("❌ Ошибка public message:", e);
+        socket.emit("chat:error", { message: "Ошибка отправки" });
+        console.log("❌ Ошибка public message отправлена клиенту:", { message: "Ошибка отправки" });
       }
     });
 
-    // ======= РЕДАКТИРОВАНИЕ СООБЩЕНИЯ =======
+    // ====================================================
+    // ✏️ РЕДАКТИРОВАНИЕ СООБЩЕНИЯ
+    // ====================================================
     socket.on("message:edit", async ({ messageId, content }) => {
-      console.log(`✏️ Редактирование сообщения ${messageId}:`, content);
-
       try {
-        // Найти сообщение
         const message = await Message.findByPk(messageId);
-        
+
         if (!message) {
           socket.emit("message:error", { message: "Сообщение не найдено" });
           return;
         }
 
-        // Проверить, что пользователь является автором сообщения
         if (message.senderId !== userId) {
-          socket.emit("message:error", { message: "Нет прав для редактирования этого сообщения" });
+          socket.emit("message:error", { message: "Нет прав" });
           return;
         }
 
-        // Обновить сообщение
         message.content = content.trim();
         message.isEdited = true;
         message.editedAt = new Date();
-        
         await message.save();
 
-        // Загружаем полную информацию о сообщении
         const fullMessage = await Message.findByPk(message.id, {
           include: [
-            {
-              model: User,
-              as: 'sender',
-              attributes: ['id', 'username', 'avatar']
-            },
-            {
-              model: User,
-              as: 'recipient',
-              attributes: ['id', 'username', 'avatar']
-            }
-          ]
+            { model: User, as: "sender", attributes: ["id", "username", "avatar"] },
+            { model: User, as: "recipient", attributes: ["id", "username", "avatar"] },
+          ],
         });
 
-        // Преобразуем сообщение в простой объект
-        const messageToSend = fullMessage.get({ plain: true });
-        // Добавляем username отправителя
-        messageToSend.username = messageToSend.sender.username;
-        messageToSend.userId = messageToSend.sender.id;
-        messageToSend.timestamp = new Date(messageToSend.createdAt).getTime();
-        if (messageToSend.editedAt) {
-          messageToSend.editedAt = new Date(messageToSend.editedAt).getTime();
-        }
+        const msg = fullMessage.get({ plain: true });
+        msg.username = msg.sender.username;
+        msg.userId = msg.sender.id;
+        msg.timestamp = new Date(msg.createdAt).getTime();
+        if (msg.editedAt) msg.editedAt = new Date(msg.editedAt).getTime();
 
-        // Отправляем обновленное сообщение всем клиентам
-        io.emit("message:updated", messageToSend);
-        console.log("✅ Сообщение обновлено и отправлено всем клиентам");
-      } catch (error) {
-        console.error("Ошибка редактирования сообщения:", error);
-        socket.emit("message:error", { message: "Ошибка редактирования сообщения" });
+        messages.emit("message:updated", msg);
+        console.log("📤 message:updated отправлено всем:", msg);
+
+      } catch (e) {
+        console.error("❌ Edit error:", e);
+        socket.emit("message:error", { message: "Ошибка редактирования" });
+        console.log("❌ Ошибка edit отправлена клиенту:", { message: "Ошибка редактирования" });
       }
     });
 
-    // ======= УДАЛЕНИЕ СООБЩЕНИЯ =======
+    // ====================================================
+    // 🗑 УДАЛЕНИЕ
+    // ====================================================
     socket.on("message:delete", async ({ messageId }) => {
-      console.log(`🗑️ Удаление сообщения ${messageId}`);
-
       try {
-        // Найти сообщение
         const message = await Message.findByPk(messageId);
-        
+
         if (!message) {
           socket.emit("message:error", { message: "Сообщение не найдено" });
           return;
         }
 
-        // Проверить, что пользователь является автором сообщения
         if (message.senderId !== userId) {
-          socket.emit("message:error", { message: "Нет прав для удаления этого сообщения" });
+          socket.emit("message:error", { message: "Нет прав" });
           return;
         }
 
-        // Удалить сообщение
         await message.destroy();
+        messages.emit("message:deleted", { messageId });
+        console.log("📤 message:deleted отправлено всем:", messageId);
 
-        // Отправляем уведомление об удалении всем клиентам
-        io.emit("message:deleted", { messageId });
-        console.log("✅ Сообщение удалено и уведомление отправлено всем клиентам");
-      } catch (error) {
-        console.error("Ошибка удаления сообщения:", error);
-        socket.emit("message:error", { message: "Ошибка удаления сообщения" });
+      } catch (e) {
+        console.error("❌ Delete error:", e);
+        socket.emit("message:error", { message: "Ошибка удаления" });
+        console.log("❌ Ошибка delete отправлена клиенту:", { message: "Ошибка удаления" });
       }
     });
 
-    // ====== Отключение ======
-    socket.on("disconnect", async () => {
-      console.log("🔴 Disconnect:", userId);
-
+    // ====================================================
+    // 🔴 ОТКЛЮЧЕНИЕ
+    // ====================================================
+    socket.on("disconnect", () => {
+      console.log("🔴 disconnect:", userId);
       delete userSockets[userId];
-      console.log("Сокет пользователя удален:", userId);
     });
   });
 };

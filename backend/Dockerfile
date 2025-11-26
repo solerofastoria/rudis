@@ -1,13 +1,16 @@
-FROM node:20
+FROM node:18
 
 WORKDIR /app
 
-COPY package*.json ./
-
+COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
 
-EXPOSE 5000
+# Устанавливаем переменную окружения для Docker
+ENV COOKIE_SECURE=true
 
-CMD ["npm", "run", "dev"]
+# Важно: миграции должны работать в контейнере
+RUN npx sequelize-cli db:migrate || true
+
+CMD ["sh", "-c", "npx sequelize-cli db:migrate && npm start"]

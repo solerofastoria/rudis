@@ -82,6 +82,7 @@ app.get('/api/test', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+require('./socket/messages')(io);
 server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
   console.log(` Health check: http://localhost:${PORT}/api/health`);

@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const db = require("../models");
 
 async function authenticate(req, res, next) {
   try {
@@ -11,7 +11,7 @@ async function authenticate(req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findByPk(decoded.userId);
+    const user = await db.User.findByPk(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ message: "Пользователь не найден" });
