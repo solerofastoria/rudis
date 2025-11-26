@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import sun from "./assets/Frame.svg";
 import moon from "./assets/Frame-night.svg";
+
+// Фоны
+import bgDark from "./assets/bg.jpg";
+import bgLight from "./assets/bg-sun.jpg";
+
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { login, register } from "./api/auth";
-import ChatPage from "./pages/Main/ChatPage";
-import DirectMessagePage from "./pages/Main/DirectMessagePage";
+import { ChatLayout } from "./pages/Main";
+import { AuthContext } from "./context/AuthContext";
+import { ChatPerformanceStats } from "./components/ChatPerformanceStats";
 
 function LoginPage() {
+  const { setUser } = useContext(AuthContext);
+
   const [isLight, setIsLight] = useState(false);
   const [rotate, setRotate] = useState(false);
 
@@ -18,35 +26,51 @@ function LoginPage() {
 
   const navigate = useNavigate();
 
+  /** Переключение темы */
   const toggleTheme = () => {
     setRotate(true);
-    setIsLight(!isLight);
+    setIsLight((prev) => !prev);
     setTimeout(() => setRotate(false), 800);
   };
 
+  /** Логин */
   const handleLogin = async () => {
     try {
-      await login(email, password);
-      navigate("/app");
+      const res = await login(email, password);
+      setUser(res.data.data.user);
+
+      setTimeout(() => navigate("/app"), 100);
     } catch (err) {
       alert("Ошибка входа");
     }
   };
 
+  /** Регистрация */
   const handleRegister = async () => {
     try {
       const username = email.split("@")[0];
-      await register(username, email, password);
-      navigate("/app");
+      const res = await register(username, email, password);
+      setUser(res.data.data.user);
+
+      setTimeout(() => navigate("/app"), 100);
     } catch (err) {
       alert("Ошибка регистрации");
     }
   };
 
   return (
-    <div className={`app ${isLight ? "light" : "dark"}`}>
+    <div
+      className={`app ${isLight ? "light" : "dark"}`}
+      style={
+        {
+          "--bg-image": `url(${isLight ? bgLight : bgDark})`
+        } as React.CSSProperties
+      }
+    >
+      {/* Размытый слой */}
       <div className="background-layer"></div>
 
+      {/* Кнопка переключения темы */}
       <div className="theme-button" onClick={toggleTheme}>
         <img
           src={isLight ? moon : sun}
@@ -55,6 +79,7 @@ function LoginPage() {
         />
       </div>
 
+      {/* Форма входа */}
       <div className="login-box">
         <h1 className="title">Добро пожаловать!</h1>
 
@@ -83,61 +108,71 @@ function LoginPage() {
           Зарегистрироваться
         </a>
       </div>
+      
+      {/* Статистика производительности */}
+      <ChatPerformanceStats />
     </div>
   );
 }
+
+/* ========================= APP PAGE ========================= */
 
 function AppPage() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const logout = async () => {
-    try {
-      // Remove token from localStorage if it exists
-      localStorage.removeItem("token");
-      // Redirect to login page
-      navigate("/");
-    } catch (err) {
-      console.error("Ошибка выхода", err);
-    }
-  };
-
-  if (loading) return <p>Загрузка...</p>;
-  if (!user) {
-    navigate("/");
-    return null;
+  // 1. Пока не загрузился AuthContext → показываем загрузку
+  if (authLoading) {
+    return <div className="loading">Загрузка...</div>;
   }
 
+  useEffect(() => {
+    // 2. Если нет пользователя → редирект
+    if (!user) {
+      navigate("/");
+      return;
+    }
+
+    // 3. Если просто /app → переходим в /app/chat
+    if (window.location.pathname === "/app") {
+      navigate("/app/chat");
+    }
+  }, [user, navigate]);
+
   return (
-    <div style={{ padding: 40 }}>
-      <h1>🎉 Добро пожаловать в приложение!</h1>
-      <p>Вы успешно вошли.</p>
-
-      <button
-        onClick={logout}
-        style={{
-          marginTop: 20,
-          padding: "10px 20px",
-          fontSize: "18px",
-          cursor: "pointer",
-        }}
-      >
-        Выйти
-      </button>
-
-      <div style={{ marginTop: 40 }}>
-        <ChatPage />
-      </div>
+    <div style={{ height: "100vh" }}>
+      <ChatLayout />
+      {/* Статистика производительности */}
+      <ChatPerformanceStats />
     </div>
   );
 }
 
+/* ========================= ROUTER ========================= */
+
 export default function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Загрузка...</div>;
+
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
-      <Route path="/app" element={<AppPage />} />
-      <Route path="/dm/:userId" element={<DirectMessagePage />} />
+
+      <Route
+        path="/app/*"
+        element={user ? <AppPage /> : <LoginPage />}
+      />
+
+      <Route
+        path="/app/chat"
+        element={user ? <ChatLayout /> : <LoginPage />}
+      />
+
+      <Route
+        path="/dm/:userId"
+        element={user ? <ChatLayout /> : <LoginPage />}
+      />
     </Routes>
   );
 }

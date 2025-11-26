@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSocket } from '../../../hooks/useSocket';
 import { useAuth } from '../../../hooks/useAuth';
-import type { ITypingUser } from '../types';
+import type { ITypingUser } from '../types/types';
 
 export const useTyping = (chatId?: string) => {
   const { socket, isConnected } = useSocket();
@@ -13,7 +13,7 @@ export const useTyping = (chatId?: string) => {
   useEffect(() => {
     if (!socket || !user) return;
 
-    const handleTypingStart = (data: { userId: number }) => {
+    const handleTypingStart = (data: { userId: string }) => {
       if (data.userId !== user.id) {
         setTypingUsers(prev => {
           const existingUser = prev.find(u => u.userId === data.userId);
@@ -25,7 +25,7 @@ export const useTyping = (chatId?: string) => {
       }
     };
 
-    const handleTypingStop = (data: { userId: number }) => {
+    const handleTypingStop = (data: { userId: string }) => {
       setTypingUsers(prev => prev.filter(u => u.userId !== data.userId));
     };
 

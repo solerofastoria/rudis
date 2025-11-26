@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -16,99 +17,77 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-export const SocketProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const socketRef = useRef<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  console.log("Инициализация состояния сокета:", { socket, isConnected });
-
   const { user } = useContext(AuthContext);
-  console.log("Получен пользователь из AuthContext:", user);
 
   useEffect(() => {
-    if (!user) return;
+    // Если нет пользователя → отключаем сокет
+    if (!user) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      setIsConnected(false);
+      return;
+    }
 
-    console.log("Инициализация сокета для пользователя:", user.id);
-    // === Вариант 1: через прокси nginx (рекомендуется в Docker) ===
-    const newSocket = io("/", {
+    // Если сокет уже существует — не пересоздаём
+    if (socketRef.current) return;
+
+    console.log("🔌 Creating socket for user:", user.id);
+
+    const socket = io("/messages", {
       path: "/socket.io",
-      transports: ["websocket", "polling"],
-      withCredentials: true,
-      query: { userId: user.id },
+      transports: ["websocket"],
+      query: { userId: String(user.id) }, // важно!
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
     });
+    
+    console.log("🔌 Socket created:", socket);
 
-    newSocket.on("connect", () => {
-      console.log("🟢 Socket connected:", newSocket.id);
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+      console.log("🔗 Connected to namespace:", socket.connected);
       setIsConnected(true);
     });
-    
-    newSocket.on("connect_error", (error) => {
-      console.log("❌ Socket connection error:", error);
-      console.log("Error details:", {
-        message: error.message,
-        stack: error.stack
-      });
-    });
-    
-    newSocket.on("disconnect", (reason) => {
+
+    socket.on("disconnect", (reason) => {
       console.log("🔴 Socket disconnected:", reason);
       setIsConnected(false);
     });
-    
-    // Добавим лог для отладки подключения
-    setTimeout(() => {
-      console.log("Состояние подключения через 1 секунду:", {
-        connected: newSocket.connected,
-        id: newSocket.id
-      });
-    }, 1000);
-    
-    // Проверим состояние сокета через 3 секунды
-    setTimeout(() => {
-      console.log("Состояние подключения через 3 секунды:", {
-        connected: newSocket.connected,
-        id: newSocket.id
-      });
-    }, 3000);
-    
-    newSocket.on("connect_error", (error) => {
-      console.log("❌ Socket connection error:", error);
-    });
 
-    newSocket.on("disconnect", () => {
-      console.log("🔴 Socket disconnected");
-      setIsConnected(false);
-    });
-
-    newSocket.on("dm:new", (payload) => {
-      console.log("📩 DM received:", payload);
+    socket.on("connect_error", (err) => {
+      console.log("❌ Socket error:", err.message);
     });
     
-    newSocket.on("chat:message", (payload) => {
-      console.log("💬 Chat message received:", payload);
-      console.log("Тип данных:", typeof payload);
-      console.log("Содержание сообщения:", payload);
-      console.log("Время получения сообщения:", new Date().toISOString());
+    // Добавим отладку для всех событий
+    socket.onAny((event, ...args) => {
+      console.log("📡 Socket event:", event, args);
     });
-
-    console.log("Сокет установлен");
-    console.log("Сокет установлен, проверяем его состояние:", {
-      connected: newSocket.connected,
-      id: newSocket.id
-    });
-    setSocket(newSocket);
 
     return () => {
-      console.log("Очистка сокета");
-      newSocket.off();
-      newSocket.close();
+      console.log("♻ Cleaning socket");
+      if (socketRef.current) {
+        socketRef.current.removeAllListeners(); // важно!
+        socketRef.current.disconnect();
+      }
+      socketRef.current = null;
+      setIsConnected(false);
     };
   }, [user]);
 
   return (
     <SocketContext.Provider
-      value={{ socket, isConnected }}
+      value={{
+        socket: socketRef.current,
+        isConnected,
+      }}
     >
       {children}
     </SocketContext.Provider>

@@ -1,5 +1,5 @@
 import api from './client';
-import type { IMessage } from '../features/chat/types';
+import type { IMessage } from '../features/chat/types/types';
 
 // Получение всех публичных сообщений
 export const getMessages = async (): Promise<IMessage[]> => {
@@ -11,6 +11,24 @@ export const getMessages = async (): Promise<IMessage[]> => {
 export const getDirectMessages = async (userId: string): Promise<IMessage[]> => {
   const response = await api.get(`/messages/direct/${userId}`);
   return response.data.data || [];
+};
+
+// Получение непрочитанных личных сообщений
+export const getUnreadDirectMessages = async (): Promise<{ userId: string; count: number }[]> => {
+  const response = await api.get('/messages/unread');
+
+  // ЯВНО указываем, что объект — string → number
+  const data: Record<string, number> = response.data.data || {};
+
+  return Object.entries(data).map(([userId, count]) => ({
+    userId,
+    count
+  }));
+};
+
+// Пометить сообщения как прочитанные
+export const markMessagesAsRead = async (userId: string): Promise<void> => {
+  await api.post(`/messages/read/${userId}`);
 };
 
 // Создание нового сообщения

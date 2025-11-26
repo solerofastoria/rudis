@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useSocket as useSocketContext } from '../context/SocketContext';
 import type { Socket } from 'socket.io-client';
+import { throttledSocketLog } from '../utils/socketLogger';
 
 interface UseSocketReturn {
   socket: Socket | null;
@@ -14,11 +15,11 @@ export const useSocket = (): UseSocketReturn => {
 
   const emit = useCallback(
     (event: string, data?: any) => {
-      console.log("Отправка события:", event, data);
+      throttledSocketLog("Отправка события", { event, data });
       if (isConnected && socket) {
         socket.emit(event, data);
       } else {
-        console.log("Невозможно отправить событие, сокет не подключен:", { isConnected, socket: !!socket });
+        throttledSocketLog("Невозможно отправить событие, сокет не подключен", { isConnected, socket: !!socket });
       }
     },
     [socket, isConnected]
@@ -26,11 +27,11 @@ export const useSocket = (): UseSocketReturn => {
 
   const on = useCallback(
     (event: string, callback: (...args: any[]) => void) => {
-      console.log("Подписка на событие:", event);
+      throttledSocketLog("Подписка на событие", event);
       if (socket) {
         socket.on(event, callback);
         return () => {
-          console.log("Отписка от события:", event);
+          throttledSocketLog("Отписка от события", event);
           socket.off(event, callback);
         };
       }

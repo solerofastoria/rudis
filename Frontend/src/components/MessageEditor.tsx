@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import './MessageEditor.css';
 
 interface MessageEditorProps {
   initialValue?: string;
@@ -52,7 +53,7 @@ export const MessageEditor = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className="message-editor-textarea"
-        rows={1}
+        rows={3}
       />
       <div className="message-editor-actions">
         <button 

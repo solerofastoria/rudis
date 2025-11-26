@@ -1,17 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSocket } from '../../../hooks/useSocket';
 import { useAuth } from '../../../hooks/useAuth';
-import type { IMessage, ITypingUser } from '../types';
+import type { IMessage, ITypingUser } from '../types/types';
+import { throttle } from '../../../utils/throttle';
 
 interface UseChatProps {
   chatId?: string;
 }
 
 export const useChat = ({ chatId }: UseChatProps = {}) => {
-  const { socket, isConnected, emit } = useSocket();
+  const { socket, isConnected } = useSocket();
   const { user } = useAuth();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [typingUsers, setTypingUsers] = useState<ITypingUser[]>([]);
+  
+  // Троттлинг для обновлений сообщений (не чаще 1 раза в 100 мс)
+  const throttledSetMessages = useRef(
+    throttle((newMessages: IMessage[]) => {
+      setMessages(newMessages);
+    }, 100)
+  ).current;
 
   // Listen for new messages
   useEffect(() => {
@@ -20,10 +28,11 @@ export const useChat = ({ chatId }: UseChatProps = {}) => {
 
     const handleMessage = (msg: IMessage) => {
       console.log("📥 Получено новое сообщение:", msg);
-      setMessages(prev => [...prev, msg]);
+      // Используем троттлинг для обновления сообщений
+      throttledSetMessages([...messages, msg]);
     };
 
-    const handleTypingStart = (data: { userId: number }) => {
+    const handleTypingStart = (data: { userId: string }) => {
       if (user && data.userId !== user.id) {
         setTypingUsers(prev => {
           const newUser = { userId: data.userId, username: `User ${data.userId}` };
@@ -32,7 +41,7 @@ export const useChat = ({ chatId }: UseChatProps = {}) => {
       }
     };
 
-    const handleTypingStop = (data: { userId: number }) => {
+    const handleTypingStop = (data: { userId: string }) => {
       setTypingUsers(prev => prev.filter(u => u.userId !== data.userId));
     };
 
@@ -47,57 +56,38 @@ export const useChat = ({ chatId }: UseChatProps = {}) => {
       socket.off('typing:start', handleTypingStart);
       socket.off('typing:stop', handleTypingStop);
     };
-  }, [socket, user]);
+  }, [socket, user, messages, throttledSetMessages]);
 
-  // Send a message
-  const sendMessage = useCallback(
-    (content: string) => {
-      console.log("Проверка условий отправки сообщения:", { socket: !!socket, user: !!user, isConnected });
-      if (!socket || !user || !isConnected) {
-        console.log("❌ Отправка сообщения заблокирована из-за отсутствия необходимых условий");
-        return;
-      }
-
-      console.log("📤 Отправка сообщения через сокет:", { content, username: user.username });
-      emit('chat:send', {
-        content,
-        username: user.username,
-        timestamp: Date.now(),
-      });
-      // Добавляем сообщение в локальное состояние сразу для быстрого отображения
-      const message: IMessage = {
-        id: Date.now().toString(),
-        content,
-        userId: user.id,
-        username: user.username,
-        timestamp: Date.now(),
-        chatId
-      };
-      setMessages(prev => [...prev, message]);
-    },
-    [socket, user, isConnected, chatId, emit]
-  );
-
-  // Start typing indicator
-  const startTyping = useCallback(() => {
-    if (!socket || !chatId || !user || !isConnected) return;
+  const sendMessage = useCallback((content: string) => {
+    if (!socket || !user) return;
     
+    console.log("📤 Отправка сообщения:", { content, chatId });
+    
+    if (chatId) {
+      // Личное сообщение
+      socket.emit('dm:send', { toUserId: chatId, content });
+    } else {
+      // Общее сообщение
+      socket.emit('chat:send', { content });
+    }
+  }, [socket, user, chatId]);
+
+  const sendTypingStart = useCallback(() => {
+    if (!socket || !user || !chatId) return;
     socket.emit('typing:start', { chatId });
-  }, [socket, chatId, user, isConnected]);
+  }, [socket, user, chatId]);
 
-  // Stop typing indicator
-  const stopTyping = useCallback(() => {
-    if (!socket || !chatId || !user || !isConnected) return;
-    
+  const sendTypingStop = useCallback(() => {
+    if (!socket || !user || !chatId) return;
     socket.emit('typing:stop', { chatId });
-  }, [socket, chatId, user, isConnected]);
+  }, [socket, user, chatId]);
 
   return {
     messages,
     typingUsers,
     isConnected,
     sendMessage,
-    startTyping,
-    stopTyping
+    sendTypingStart,
+    sendTypingStop
   };
 };

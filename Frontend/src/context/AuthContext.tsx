@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, type FC } from "react";
 import type { IUser } from "../types/auth";
 import { getMe } from "../api/auth";
 
-interface IAuthContext {
+export interface IAuthContext {
   user: IUser | null;
   setUser: (u: IUser | null) => void;
   loading: boolean;
@@ -19,27 +19,31 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Инициализация AuthContext");
     async function init() {
       try {
-        console.log("Получение данных пользователя");
         const res = await getMe();
-        console.log("Данные пользователя получены:", res.data.data.user);
+        console.log("AuthContext: User loaded", res.data.data.user);
         setUser(res.data.data.user);
       } catch (error) {
         // If getMe fails, it means user is not authenticated
-        // setUser is already null by default, so no need to set it
-        console.log("User not authenticated");
+        console.log("AuthContext: User not authenticated");
+        setUser(null);
+      } finally {
+        console.log("AuthContext: Loading finished");
+        setLoading(false);
       }
-
-      setLoading(false);
     }
 
     init();
   }, []);
 
+  const setUserWrapper = (newUser: IUser | null) => {
+    console.log("AuthContext: Setting user", newUser);
+    setUser(newUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser: setUserWrapper, loading }}>
       {children}
     </AuthContext.Provider>
   );

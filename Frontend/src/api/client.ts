@@ -1,7 +1,9 @@
 import axios from "axios";
 
+// В режиме разработки Vite проксирует /api к бэкенду
+// В production (Docker) nginx проксирует /api к бэкенду
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: '/api',
   withCredentials: true,
 });
 
