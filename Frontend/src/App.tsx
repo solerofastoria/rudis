@@ -11,7 +11,7 @@ import "./App.css";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { login, register } from "./api/auth";
-import { ChatLayout } from "./pages/Main";
+import { MainLayout } from "./components/MainLayout";
 import { AuthContext } from "./context/AuthContext";
 import { ChatPerformanceStats } from "./components/ChatPerformanceStats";
 
@@ -141,7 +141,7 @@ function AppPage() {
 
   return (
     <div style={{ height: "100vh" }}>
-      <ChatLayout />
+      <MainLayout />
       {/* Статистика производительности */}
       <ChatPerformanceStats />
     </div>
@@ -166,12 +166,12 @@ export default function App() {
 
       <Route
         path="/app/chat"
-        element={user ? <ChatLayout /> : <LoginPage />}
+        element={user ? <MainLayout /> : <LoginPage />}
       />
 
       <Route
         path="/dm/:userId"
-        element={user ? <ChatLayout /> : <LoginPage />}
+        element={user ? <MainLayout /> : <LoginPage />}
       />
     </Routes>
   );

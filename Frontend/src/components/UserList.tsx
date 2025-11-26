@@ -46,16 +46,18 @@ export const UserList = ({ selectedUserId, onSelectUser }: UserListProps) => {
 
   return (
     <div className="user-list">
-      <h3>Чаты</h3>
-      <ul>
-        <li 
-          className={!selectedUserId ? 'selected' : ''}
-          onClick={() => onSelectUser?.(null)}
-        >
-          🌐 Общий чат
-        </li>
-        {memoizedUserList}
-      </ul>
+      <div className="user-list-content">
+        <h3>Чаты</h3>
+        <ul>
+          <li 
+            className={!selectedUserId ? 'selected' : ''}
+            onClick={() => onSelectUser?.(null)}
+          >
+            🌐 Общий чат
+          </li>
+          {memoizedUserList}
+        </ul>
+      </div>
     </div>
   );
 };

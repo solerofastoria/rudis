@@ -1,5 +1,15 @@
 .user-list {
   padding: 15px;
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-list-content {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .user-list h3 {
