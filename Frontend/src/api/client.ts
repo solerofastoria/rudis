@@ -2,8 +2,13 @@
 import axios from "axios";
 
 const api = axios.create({
+<<<<<<< Updated upstream
   baseURL: "/api", // проксируется на backend через vite.config.ts
   withCredentials: true, // если backend использует cookie
+=======
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+>>>>>>> Stashed changes
 });
 
 // 🔐 Добавляем токен авторизации (если он есть)
@@ -30,3 +35,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+
