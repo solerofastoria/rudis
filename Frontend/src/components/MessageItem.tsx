@@ -1,5 +1,6 @@
 import { useState, memo, useMemo } from 'react';
 import { MessageEditor } from './MessageEditor';
+import { Button } from './ui/Button/Button';
 import './MessageItem.css';
 import type { IMessage } from '../features/chat/types/types';
 
@@ -67,18 +68,20 @@ export const MessageItem = memo(({
       
       {isOwnMessage && !isEditing && (
         <div className="message-actions">
-          <button 
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setIsEditing(true)}
-            className="edit-button"
           >
             Редактировать
-          </button>
-          <button 
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
             onClick={handleDelete}
-            className="delete-button"
           >
             Удалить
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -1,0 +1,91 @@
+{
+  "navigation": {
+    "friends": "Друзья",
+    "servers": "Серверы",
+    "notifications": "Уведомления",
+    "menu": "Меню",
+    "create": "Создать"
+  },
+  "chat": {
+    "friends": "Друзья",
+    "messages": "Сообщения",
+    "online": "В сети",
+    "offline": "Не в сети",
+    "searchFriends": "Поиск друзей",
+    "addFriend": "Добавить друга",
+    "sendMessage": "Введите сообщение...",
+    "send": "Отправить",
+    "noMessages": "Нет сообщений.",
+    "startConversation": "Начните диалог!",
+    "beFirst": "Будьте первым, кто напишет!",
+    "connecting": "Подключение к серверу...",
+    "participants": "Участники"
+  },
+  "friends": {
+    "yourFriends": "Ваши друзья",
+    "searchFriends": "Поиск друзей...",
+    "noFriends": "У вас пока нет друзей",
+    "friendsNotFound": "Друзья не найдены",
+    "remove": "Удалить",
+    "online": "В сети",
+    "offline": "Не в сети"
+  },
+  "friendSearch": {
+    "searchPlaceholder": "Введите имя пользователя...",
+    "usersNotFound": "Пользователи не найдены",
+    "noUsers": "Нет пользователей для отображения",
+    "add": "Добавить",
+    "requestSent": "Запрос отправлен",
+    "friendRequests": "Запросы в друзья",
+    "accept": "Принять",
+    "reject": "Отклонить"
+  },
+  "auth": {
+    "welcome": "Добро пожаловать!",
+    "email": "Email *",
+    "password": "Пароль *",
+    "login": "ВХОД",
+    "register": "Зарегистрироваться",
+    "enterEmail": "введите email",
+    "enterPassword": "введите пароль"
+  },
+  "status": {
+    "online": "В сети",
+    "offline": "Не в сети",
+    "afk": "АФК на чиле",
+    "coding": "Пишу код в прод",
+    "inVoice": "Сижу в войсе",
+    "streaming": "Стримлю"
+  },
+  "voice": {
+    "voiceChannel": "Голосовой канал",
+    "streamMode": "Режим стримера",
+    "microphone": "Микрофон",
+    "headphones": "Гарнитура",
+    "noiseSuppression": "Шумоподавление",
+    "raiseHand": "Поднять руку"
+  },
+  "reactions": {
+    "reactions": "Реакции",
+    "addReaction": "Добавить реакцию"
+  },
+  "settings": {
+    "profile": "Профиль",
+    "settings": "Настройки",
+    "stickers": "Стикеры",
+    "bookmarks": "Закладки",
+    "help": "Помощь"
+  },
+  "server": {
+    "servers": "Серверы",
+    "createServer": "Создать сервер",
+    "gameServer": "Игровой сервер",
+    "education": "Образование",
+    "music": "Музыка"
+  },
+  "notifications": {
+    "notifications": "Уведомления",
+    "mentions": "Упоминания",
+    "reactions": "Реакции"
+  }
+}

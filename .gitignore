@@ -45,3 +45,6 @@ Frontend/.eslintcache
 *.swp
 *.swo
 *.orig
+
+# Auto Claude data directory
+.auto-claude/

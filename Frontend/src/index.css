@@ -1,228 +1,30 @@
-/* ====== ФОН ПРИЛОЖЕНИЯ ====== */
-.app {
-  width: 100vw;
-  height: 100vh;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  /* ВАЖНО — используем переменную вместо url(...) */
-  background-image: var(--bg-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+@import './styles/theme.css';
 
-  overflow: hidden;
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Общие стили */
+.loading {
   display: flex;
   justify-content: center;
   align-items: center;
-
-  position: relative;
-  color: white;
-  font-family: Inter, sans-serif;
-
-  transition: background-image 1s ease-in-out,
-              background-color 1s,
-              filter 0.8s ease-in-out;
-}
-
-/* Размытый слой */
-.background-layer {
-  position: absolute;
-  inset: 0;
-
-  background-image: var(--bg-image);
-  background-size: cover;
-  background-position: center;
-
-  filter: blur(14px);
-  transform: scale(1.06);
-  z-index: -1;
-
-  transition: filter 0.8s ease, background-image 1s ease-in-out;
-}
-
-/* ====== ТЕМЫ (здесь фон НЕ МЕНЯЕМ!) ====== */
-.app.light {}
-.app.dark {}
-
-/* ====== ФОРМА ====== */
-.login-box {
-  width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-
-  background: none;
-  backdrop-filter: blur(26px);
-}
-
-.title {
-  font-size: 35px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  text-align: left;
-  width: 100%;
-}
-
-.label {
-  width: 100%;
-  font-size: 15px;
-  font-weight: 600;
-  text-align: left;
-}
-
-.input {
-  width: 100%;
-  height: 50px;
-  padding-left: 20px;
-
-  background: rgba(0, 0, 0, 0.25);
-  border: 2px solid rgba(255, 255, 255, 0.329);
-  border-radius: 30px;
-
-  color: white;
-  font-size: 15px;
-
-  transition: 0.25s ease;
-}
-
-.input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.input:focus {
-  border-color: #ffffff60;
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.02);
-}
-
-.forgot {
-  width: 100%;
-  text-align: left;
-  margin-top: -2px;
-  font-size: 14px;
-  color: #dbefff;
-  text-decoration: none;
-}
-
-/* ====== КНОПКА ВХОДА ====== */
-.login-btn {
-  width: 100%;
-  height: 55px;
-
-  background: #51a9be;
-  border-radius: 35px;
-
-  border: none;
+  height: 100vh;
   font-size: 18px;
-  font-weight: 700;
-  color: white;
-
-  cursor: pointer;
-  margin-top: 5px;
-
-  box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.4);
-
-  transition: transform 0.25s ease,
-              box-shadow 0.25s ease,
-              background 0.25s;
-}
-
-.login-btn:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0px 8px 0px rgba(0, 0, 0, 0.45);
-  background: #5cbed6;
-}
-
-.login-btn:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0px 3px 0px rgba(0, 0, 0, 0.3);
-}
-
-.register {
-  margin-top: 10px;
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-/* ====== ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ====== */
-.theme-button {
-  position: absolute;
-  right: 40px;
-  bottom: 35px;
-
-  width: 60px;
-  height: 60px;
-  cursor: pointer;
-}
-
-.sun-icon {
-  width: 60px;
-  height: 60px;
-
-  transition: opacity 0.5s ease,
-              transform 0.6s ease,
-              filter 0.3s ease;
-}
-
-/* Hover */
-.theme-button:hover .sun-icon {
-  transform: scale(1.1);
-}
-
-.sun-icon:hover {
-  filter: brightness(1.3);
-}
-
-/* Вращение */
-.sun-rotate {
-  animation: spin 0.8s ease forwards;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg) scale(1);
-  }
-  to {
-    transform: rotate(180deg) scale(1.1);
-  }
-}
-
-/* Переключение картинок */
-.app.light .sun-icon.light-img {
-  opacity: 0;
-}
-
-.app.light .sun-icon.dark-img {
-  opacity: 1;
-}
-
-.app.dark .sun-icon.light-img {
-  opacity: 1;
-}
-
-.app.dark .sun-icon.dark-img {
-  opacity: 0;
-}
-
-/* Глобальные переходы */
-.input,
-.label,
-.title,
-.register,
-.forgot {
-  transition: color 0.5s ease,
-              background 0.6s ease,
-              border-color 0.6s ease;
-}
-
-/* Светлая тема — кнопка темнее */
-.app.light .login-btn {
-  background: #3c8fa4;
-  box-shadow: 0px 5px 0px rgba(0, 0, 0, 0.25);
-}
-
-.app.light .login-btn:hover {
-  background: #337e91;
+  color: var(--text-primary);
 }

@@ -7,20 +7,33 @@ import React, {
   type ReactNode,
 } from "react";
 
-import { io, Socket } from "socket.io-client";
+import io from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 
 interface SocketContextType {
-  socket: Socket | null;
+  socket: any | null;
   isConnected: boolean;
+}
+
+interface SocketRefType {
+  disconnect: () => void;
+  removeAllListeners: () => void;
+  on: (event: string, callback: (...args: any[]) => void) => void;
+  emit: (event: string, data?: any) => void;
+  id?: string;
+  connected?: boolean;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<SocketRefType | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const { user } = useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("SocketProvider must be used within an AuthProvider");
+  }
+  const { user } = context;
 
   useEffect(() => {
     // Если нет пользователя → отключаем сокет
@@ -57,19 +70,21 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setIsConnected(true);
     });
 
-    socket.on("disconnect", (reason) => {
+    socket.on("disconnect", (reason: string) => {
       console.log("🔴 Socket disconnected:", reason);
       setIsConnected(false);
     });
 
-    socket.on("connect_error", (err) => {
+    socket.on("connect_error", (err: Error) => {
       console.log("❌ Socket error:", err.message);
     });
-    
-    // Добавим отладку для всех событий
-    socket.onAny((event, ...args) => {
-      console.log("📡 Socket event:", event, args);
+    // Слушаем событие создания сервера
+    socket.on("server:created", (data: any) => {
+      console.log("🆕 Server created:", data);
+      // Отправляем кастомное событие для обновления списка серверов
+      window.dispatchEvent(new CustomEvent('serverCreated', { detail: data }));
     });
+    
 
     return () => {
       console.log("♻ Cleaning socket");
@@ -85,7 +100,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   return (
     <SocketContext.Provider
       value={{
-        socket: socketRef.current,
+        socket: socketRef.current as any,
         isConnected,
       }}
     >

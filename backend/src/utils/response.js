@@ -1,15 +1,27 @@
-exports.success = (res, data = null, message = "OK", status = 200) => {
-  return res.status(status).json({
+// Успешный ответ
+const success = (res, data = null, message = "Success", statusCode = 200) => {
+  return res.status(statusCode).json({
     success: true,
-    message,
     data,
+    message
   });
 };
 
-exports.error = (res, message = "Ошибка", status = 400, data = null) => {
-  return res.status(status).json({
+// Ошибка
+const error = (res, message = "Error", statusCode = 500, errors = null) => {
+  const response = {
     success: false,
-    message,
-    data,
-  });
+    message
+  };
+  
+  if (errors) {
+    response.errors = errors;
+  }
+  
+  return res.status(statusCode).json(response);
+};
+
+module.exports = {
+  success,
+  error
 };

@@ -1,0 +1,266 @@
+/* ========================= CHAT LAYOUT ========================= */
+
+.chat-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #1a202c;
+  color: #fff;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  margin-top: 60px; /* Добавляем отступ сверху для навигационной панели */
+}
+
+/* Панель списка пользователей */
+.user-list-panel {
+  width: 250px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(45, 55, 72, 0.8);
+}
+
+/* Основная область чата */
+.chat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #1a202c;
+}
+
+.chat-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(45, 55, 72, 0.8);
+  display: flex;
+  align-items: center;
+}
+
+.chat-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.messages-container {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.no-messages {
+  text-align: center;
+  color: #a0aec0;
+  margin-top: 1.5rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-input-area {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(45, 55, 72, 0.8);
+}
+
+.message-input-container {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.message-input-container textarea {
+  flex: 1;
+  padding: 1rem;
+  background-color: rgba(74, 85, 104, 0.5);
+  border: 1px solid #4a5568;
+  border-radius: 0.75rem;
+  resize: none;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.15s ease;
+}
+
+.message-input-container textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+}
+
+.send-button {
+  padding: 1rem 2rem;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.send-button:hover:not(:disabled) {
+  background: linear-gradient(90deg, #3182ce, #5a67d8);
+  transform: translateY(-1px);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.connection-status {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #a0aec0;
+  text-align: center;
+}
+
+/* Панель участников */
+.participants-panel {
+  width: 250px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(45, 55, 72, 0.8);
+}
+
+.participants-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.participants-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.participants-list {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.participant-item:hover {
+  background-color: rgba(108, 117, 125, 0.5);
+  transform: translateY(-1px);
+}
+
+.participant-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  position: relative;
+}
+
+.participant-avatar.online::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background-color: #68d391;
+  border: 2px solid #2d3748;
+  border-radius: 50%;
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.participant-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #fff;
+}
+
+.participant-status {
+  font-size: 0.75rem;
+  color: #a0aec0;
+}
+
+.participant-status.online {
+  color: #68d391;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .participants-panel {
+    display: none;
+  }
+  
+  .user-list-panel {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-list-panel {
+    display: none;
+  }
+  
+  .chat-header {
+    padding: 1rem;
+  }
+  
+  .messages-container {
+    padding: 1rem;
+  }
+  
+  .message-input-area {
+    padding: 1rem;
+  }
+  
+  .message-input-container {
+    gap: 0.5rem;
+  }
+  
+  .message-input-container textarea {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .send-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .main-content {
+    margin-top: 65px; /* Увеличиваем отступ для мобильных устройств */
+  }
+  
+  .participants-panel {
+    width: 200px;
+  }
+}

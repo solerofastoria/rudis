@@ -1,5 +1,7 @@
+/* ========================= USER LIST ========================= */
+
 .user-list {
-  padding: 15px;
+  padding: 1rem;
   position: relative;
   height: 100%;
   box-sizing: border-box;
@@ -14,9 +16,18 @@
 
 .user-list h3 {
   margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 16px;
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
   font-weight: 600;
+  color: #fff;
+}
+
+.user-list h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #a0aec0;
 }
 
 .user-list ul {
@@ -26,17 +37,112 @@
 }
 
 .user-list li {
-  padding: 8px 12px;
+  padding: 0.75rem 1rem;
   cursor: pointer;
-  border-radius: 4px;
-  margin-bottom: 4px;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  color: #fff;
+  display: flex;
+  align-items: center;
 }
 
 .user-list li:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(108, 117, 125, 0.5);
+  transform: translateY(-1px);
 }
 
 .user-list li.selected {
-  background-color: #007bff;
+  background: linear-gradient(90deg, #4299e1, #667eea);
   color: white;
+}
+
+.user-list-item-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-right: 0.75rem;
+}
+
+.user-list-item-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-list-item-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 0.5rem;
+}
+
+.user-list-item-status.online {
+  background-color: #48bb78;
+}
+
+.user-list-item-status.offline {
+  background-color: #a0aec0;
+}
+
+.friend-request-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: rgba(74, 85, 104, 0.5);
+  border: 1px solid #4a5568;
+}
+
+.friend-request-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.friend-request-actions .btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  min-height: auto;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.friend-request-actions .btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.friend-request-actions .btn-primary {
+  background: linear-gradient(90deg, #48bb78, #38a169);
+}
+
+.friend-request-actions .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(90deg, #38a169, #2f855a);
+  transform: translateY(-1px);
+}
+
+.friend-request-actions .btn-danger {
+  background: linear-gradient(90deg, #e53e3e, #c53030);
+}
+
+.friend-request-actions .btn-danger:hover:not(:disabled) {
+  background: linear-gradient(90deg, #c53030, #9b2c2c);
+  transform: translateY(-1px);
 }

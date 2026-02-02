@@ -12,32 +12,32 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      isDirect: {
+      is_direct: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      senderId: {
+      sender_id: {
         type: Sequelize.UUID,
         allowNull: false,
       },
-      recipientId: {
+      recipient_id: {
         type: Sequelize.UUID,
         allowNull: true,
       },
-      isEdited: {
+      is_edited: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      editedAt: {
+      edited_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      isRead: {
+      is_read: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      createdAt: { allowNull: false, type: Sequelize.DATE },
-      updatedAt: { allowNull: false, type: Sequelize.DATE }
+      created_at: { allowNull: false, type: Sequelize.DATE },
+      updated_at: { allowNull: false, type: Sequelize.DATE }
     });
   },
 

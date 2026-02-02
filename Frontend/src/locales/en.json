@@ -1,0 +1,91 @@
+{
+  "navigation": {
+    "friends": "Friends",
+    "servers": "Servers",
+    "notifications": "Notifications",
+    "menu": "Menu",
+    "create": "Create"
+  },
+  "chat": {
+    "friends": "Friends",
+    "messages": "Messages",
+    "online": "Online",
+    "offline": "Offline",
+    "searchFriends": "Search friends",
+    "addFriend": "Add friend",
+    "sendMessage": "Enter a message...",
+    "send": "Send",
+    "noMessages": "No messages.",
+    "startConversation": "Start a conversation!",
+    "beFirst": "Be the first to write!",
+    "connecting": "Connecting to server...",
+    "participants": "Participants"
+  },
+  "friends": {
+    "yourFriends": "Your friends",
+    "searchFriends": "Search friends...",
+    "noFriends": "You don't have any friends yet",
+    "friendsNotFound": "Friends not found",
+    "remove": "Remove",
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "friendSearch": {
+    "searchPlaceholder": "Enter username...",
+    "usersNotFound": "Users not found",
+    "noUsers": "No users to display",
+    "add": "Add",
+    "requestSent": "Request sent",
+    "friendRequests": "Friend requests",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "auth": {
+    "welcome": "Welcome!",
+    "email": "Email *",
+    "password": "Password *",
+    "login": "LOGIN",
+    "register": "Register",
+    "enterEmail": "enter email",
+    "enterPassword": "enter password"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "afk": "AFK chilling",
+    "coding": "Writing code in prod",
+    "inVoice": "In voice chat",
+    "streaming": "Streaming"
+  },
+  "voice": {
+    "voiceChannel": "Voice channel",
+    "streamMode": "Stream mode",
+    "microphone": "Microphone",
+    "headphones": "Headphones",
+    "noiseSuppression": "Noise suppression",
+    "raiseHand": "Raise hand"
+  },
+  "reactions": {
+    "reactions": "Reactions",
+    "addReaction": "Add reaction"
+  },
+  "settings": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "stickers": "Stickers",
+    "bookmarks": "Bookmarks",
+    "help": "Help"
+  },
+  "server": {
+    "servers": "Servers",
+    "createServer": "Create server",
+    "gameServer": "Game server",
+    "education": "Education",
+    "music": "Music"
+  },
+  "notifications": {
+    "notifications": "Notifications",
+    "mentions": "Mentions",
+    "reactions": "Reactions"
+  }
+}

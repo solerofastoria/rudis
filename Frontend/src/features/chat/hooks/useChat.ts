@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSocket } from '../../../hooks/useSocket';
-import { useAuth } from '../../../hooks/useAuth';
+import { useSocket } from '../../../context/SocketContext';
+import useAuth from '../../../hooks/useAuth';
 import type { IMessage, ITypingUser } from '../types/types';
 import { throttle } from '../../../utils/throttle';
 

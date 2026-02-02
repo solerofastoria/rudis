@@ -1,68 +1,40 @@
+/* ========================= MESSAGE EDITOR ========================= */
+
 .message-editor {
   width: 100%;
-  background-color: white;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 10px;
+  background-color: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
   box-sizing: border-box;
 }
 
 .message-editor-textarea {
   width: 100%;
   min-height: 60px;
-  padding: 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  padding: var(--spacing-sm);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   resize: vertical;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
   box-sizing: border-box;
+  transition: all 0.15s ease;
 }
 
 .message-editor-textarea:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
 }
 
 .message-editor-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.save-button,
-.cancel-button {
-  padding: 6px 12px;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.save-button {
-  background-color: #28a745;
-  color: white;
-}
-
-.save-button:hover:not(:disabled) {
-  background-color: #218838;
-}
-
-.save-button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-.cancel-button {
-  background-color: #6c757d;
-  color: white;
-}
-
-.cancel-button:hover {
-  background-color: #5a6268;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
 }
 
 /* Адаптивность для мобильных устройств */
@@ -71,8 +43,7 @@
     flex-direction: column;
   }
   
-  .save-button,
-  .cancel-button {
+  .message-editor-actions button {
     width: 100%;
   }
 }

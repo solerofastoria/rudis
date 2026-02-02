@@ -1,82 +1,57 @@
 const { Sequelize } = require('sequelize');
-require('dotenv').config();
+const dotenv = require('dotenv');
 
-console.log('🔧 Настройки БД:', {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME === 'discord_clone' ? 'rudis' : process.env.DB_NAME,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD ? '***' : 'MISSING'
-});
+dotenv.config();
 
-// Создаем подключение с явным указанием диалекта
+// Определяем параметры подключения к базе данных
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'discord_clone',
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'password',
+  dialect: 'postgres',
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  }
+};
+
+// Создаем экземпляр Sequelize
 const sequelize = new Sequelize(
-  process.env.DB_NAME === 'discord_clone' ? 'rudis' : process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  dbConfig.database,
+  dbConfig.username,
+  dbConfig.password,
   {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: 'postgres',
-    dialectModule: require('pg'),
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    host: dbConfig.host,
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
+    logging: dbConfig.logging,
+    pool: dbConfig.pool,
     dialectOptions: {
-      ssl: false,
-      // Явно указываем использование нового драйвера
-      connectionString: `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME === 'discord_clone' ? 'rudis' : process.env.DB_NAME}`
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
+      ssl: process.env.NODE_ENV === 'production' ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false
     }
   }
 );
 
-// Тестовое подключение
+// Функция для тестирования подключения
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ PostgreSQL подключена успешно');
-    
-    // Создаем тестовую таблицу
-    try {
-      await sequelize.query(`
-        CREATE TABLE IF NOT EXISTS test_connection (
-          id SERIAL PRIMARY KEY,
-          message TEXT NOT NULL,
-          created_at TIMESTAMP DEFAULT NOW()
-        )
-      `);
-      
-      // Проверяем/добавляем тестовые данные
-      const [results] = await sequelize.query("SELECT * FROM test_connection");
-      if (results.length === 0) {
-        await sequelize.query("INSERT INTO test_connection (message) VALUES ('База данных работает с SCRAM-SHA-256!')");
-      }
-      
-      console.log('✅ Тестовая таблица готова');
-    } catch (tableError) {
-      console.log('⚠️  Таблица уже существует');
-    }
-    
-    return true;
+    console.log('✅ Подключение к базе данных успешно установлено');
   } catch (error) {
-    console.error('❌ Ошибка подключения к PostgreSQL:');
-    console.error('   Сообщение:', error.message);
-    console.error('   Код ошибки:', error.original?.code);
-    
-    if (error.original?.code === '28P01') {
-      console.error('   💡 Проблема с SCRAM-SHA-256 аутентификацией');
-      console.error('   💡 Решение:');
-      console.error('      1. Убедись что пароль в .env совпадает с docker-compose.yml');
-      console.error('      2. Попробуй: npm run db:reset');
-      console.error('      3. Проверь версию pg: npm list pg');
-    }
-    
+    console.error('❌ Не удалось подключиться к базе данных:', error);
     throw error;
   }
 };
 
-module.exports = { sequelize, testConnection };
+module.exports = {
+  sequelize,
+  testConnection
+};

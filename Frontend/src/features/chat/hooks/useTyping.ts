@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSocket } from '../../../hooks/useSocket';
-import { useAuth } from '../../../hooks/useAuth';
+import { useSocket } from '../../../context/SocketContext';
+import useAuth from '../../../hooks/useAuth';
 import type { ITypingUser } from '../types/types';
 
 export const useTyping = (chatId?: string) => {

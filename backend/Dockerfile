@@ -1,16 +1,28 @@
-FROM node:18
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install
+# Копируем package.json и package-lock.json
+COPY package*.json ./
 
+# Устанавливаем зависимости
+RUN npm ci --only=production
+
+# Копируем исходный код
 COPY . .
 
-# Устанавливаем переменную окружения для Docker
-ENV COOKIE_SECURE=true
+# Создаем директорию для загрузок
+RUN mkdir -p uploads
 
-# Важно: миграции должны работать в контейнере
-RUN npx sequelize-cli db:migrate || true
+# Устанавливаем права доступа
+RUN chown -R node:node /app
+RUN chmod 755 uploads
 
-CMD ["sh", "-c", "npx sequelize-cli db:migrate && npm start"]
+# Создаем non-root пользователя
+USER node
+
+# Открываем порт
+EXPOSE 5000
+
+# Запускаем приложение
+CMD ["npm", "start"]

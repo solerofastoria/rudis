@@ -4,7 +4,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     // Добавляем внешние ключи для таблицы messages
     await queryInterface.addConstraint('messages', {
-      fields: ['senderId'],
+      fields: ['sender_id'],
       type: 'foreign key',
       name: 'messages_senderId_fkey',
       references: {
@@ -16,7 +16,7 @@ module.exports = {
     });
 
     await queryInterface.addConstraint('messages', {
-      fields: ['recipientId'],
+      fields: ['recipient_id'],
       type: 'foreign key',
       name: 'messages_recipientId_fkey',
       references: {

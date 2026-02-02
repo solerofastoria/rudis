@@ -37,6 +37,13 @@ exports.register = async (req, res) => {
     });
 
     if (existingUser) {
+      // Проверяем, что именно уже существует
+      if (existingUser.email === email) {
+        return error(res, "Пользователь с таким email уже существует", 400);
+      }
+      if (existingUser.username === username) {
+        return error(res, "Пользователь с таким именем уже существует", 400);
+      }
       return error(res, "Пользователь уже существует", 400);
     }
 
@@ -99,6 +106,44 @@ exports.logout = async (req, res) => {
     secure: isSecure,
     sameSite: isSecure ? "none" : "lax",
   });
+  
+  return success(res, null, "Вы успешно вышли из аккаунта");
 
-  return success(res, null, "Выход выполнен");
+};
+
+// ---------------- UPDATE PROFILE ----------------
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username, email, status, avatar } = req.body;
+    const userId = req.user.id;
+    
+    // Проверяем, что email и username уникальны (если они изменяются)
+    if (email && email !== req.user.email) {
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return error(res, "Пользователь с таким email уже существует", 400);
+      }
+    }
+    
+    if (username && username !== req.user.username) {
+      const existingUser = await User.findOne({ where: { username } });
+      if (existingUser) {
+        return error(res, "Пользователь с таким именем уже существует", 400);
+      }
+    }
+    
+    // Обновляем пользователя
+    const updatedUser = await User.update(
+      { username, email, status, avatar },
+      { where: { id: userId }, returning: true }
+    );
+    
+    // Получаем обновленного пользователя
+    const user = await User.findByPk(userId);
+    
+    return success(res, { user: user.toSafeObject() }, "Профиль успешно обновлен");
+  } catch (e) {
+    console.error("Update profile error:", e);
+    return error(res, "Ошибка сервера", 500);
+  }
 };

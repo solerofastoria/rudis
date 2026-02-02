@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "../context/SocketContext";
-import { useAuth } from "../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
 export interface ChatMessage {
   content: string;

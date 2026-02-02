@@ -5,19 +5,17 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true, // позволяет обращаться из Docker
-    port: 5173,
+    port: 3000,
     proxy: {
       '/api': {
-        target: 'http://backend:5000', // имя сервиса backend из docker-compose.yml
+        target: 'http://localhost:5000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-      '/socket.io': {
-        target: 'http://backend:5000',
-        changeOrigin: true,
-        ws: true, // включаем поддержку WebSocket
+        secure: false,
       }
-    },
+    }
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+  }
 })

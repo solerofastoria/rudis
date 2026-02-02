@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Button } from '../components/ui/Button/Button';
 import './MessageEditor.css';
 
 interface MessageEditorProps {
@@ -56,19 +57,19 @@ export const MessageEditor = ({
         rows={3}
       />
       <div className="message-editor-actions">
-        <button 
-          onClick={handleSubmit}
-          disabled={!content.trim()}
-          className="save-button"
-        >
-          Сохранить
-        </button>
-        <button 
+        <Button
+          variant="secondary"
           onClick={onCancel}
-          className="cancel-button"
         >
           Отмена
-        </button>
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleSubmit}
+          disabled={!content.trim()}
+        >
+          Сохранить
+        </Button>
       </div>
     </div>
   );

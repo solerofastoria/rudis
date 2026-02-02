@@ -1,273 +1,233 @@
-🎧 Discord Clone — Fullstack (React + Node.js + Docker)
+# Discord Clone - Full Stack Application
 
+A full-featured Discord clone built with modern web technologies including real-time messaging, voice chat, AI integration, and more.
 
+## 🚀 Features
 
-📌 О проекте
+### Core Features
+- **Real-time Messaging**: Instant messaging with Socket.IO
+- **Voice Chat**: WebRTC-based voice communication
+- **User Authentication**: Secure JWT-based authentication with cookies
+- **Friends System**: Add, remove, and manage friends
+- **Servers & Channels**: Discord-like server and channel structure
+- **User Presence**: Online/offline status with last seen tracking
 
-Полноценный клон Discord, построенный на современном fullstack-стеке:
-авторизация через JWT, хранение пользователей в PostgreSQL, хранение сессий в Redis.
+### AI Integration
+- **AI Chat Assistant**: Powered by Groq and Google Gemini
+- **AI Project Manager**: Advanced AI agent for project management
+- **Real-time AI Tasks**: WebSocket-based AI task processing
 
-Проект полностью контейнеризован:
-Frontend + Backend + PostgreSQL + Redis + Nginx работают внутри Docker.
+### Technical Features
+- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Docker Deployment**: Containerized with Docker Compose
+- **PostgreSQL Database**: Robust data storage with Sequelize ORM
+- **Redis Caching**: High-performance caching and session management
+- **TypeScript Frontend**: Strongly-typed React application
+- **RESTful API**: Well-documented backend API
 
-⚡ Всё запускается одной командой —
-```txt
-docker compose up -d.
-```
-📁 Архитектура проекта
+## 🛠️ Tech Stack
 
-```txt
-root/
-│── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── utils/
-│   │   └── server.js
-│   ├── Dockerfile
-│   └── package.json
-│
-│── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── Dockerfile
-│   └── package.json
-│
-│── nginx/
-│   └── default.conf
-│
-└── docker-compose.yml
-```
+### Backend
+- **Node.js** with Express.js
+- **PostgreSQL** with Sequelize ORM
+- **Redis** for caching and sessions
+- **Socket.IO** for real-time communication
+- **JWT** for authentication
+- **Docker** for containerization
 
+### Frontend
+- **React** with TypeScript
+- **Tailwind CSS** for styling
+- **Socket.IO Client** for real-time features
+- **Axios** for HTTP requests
+- **React Router** for navigation
 
-🧩 Стек технологий
-🎨 Frontend
+### AI Integration
+- **Groq SDK** for fast LLM inference
+- **Google Generative AI** for Gemini models
+- **WebSocket** for real-time AI tasks
 
-React + TypeScript.
-Vite.
-Context API.
-JWT Auth.
-Axios.
-TailwindCSS
-Socket.IO для реального времени
-
-🛠 Backend
-
-#Node.js (Express).
-#equelize ORM.
-PostgreSQL.
-Redis.
-JWT авторизация.
-Middleware + Controllers архитектура
-Socket.IO для реального времени
-
-🐳 DevOps & Infrastructure
-
-Docker
-Docker Compose
-Multi-stage Dockerfile
-Nginx reverse proxy
-Автоматическая сборка frontend → Nginx
-
-🚀 Запуск проекта
-1️⃣ Создать .env в папке /backend
-```txt
-PORT=5000
-DB_HOST=postgres
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=password
-DB_NAME=discord_clone
-REDIS_HOST=redis
-REDIS_PORT=6379
-JWT_SECRET=supersecretkey
-JWT_EXPIRES_IN=7d
+## 📁 Project Structure
 
 ```
-2️⃣ Запусти проект
-```txt
-docker compose up -d
-```
-3️⃣ Приложение будет доступно по адресу:
-
-Frontend: http://localhost:3000
-
-Backend API: http://localhost:5000
-
-📡 Функционал реального времени
-
-Проект поддерживает чат в реальном времени с использованием Socket.IO:
-
-• Мгновенная отправка и получение сообщений
-• Индикаторы набора текста
-• Статус подключения пользователей
-• Поддержка нескольких пользователей одновременно
-
-🎯 Функционал
-
-Регистрация
-
-Авторизация
-
-JWT токены + защита маршрутов
-
-Генерация уникального username
-
-Проверка токена на стороне фронтенда
-
-Полный CI/CD-friendly Docker стек
-📘 Документация API (Backend)
-
-<<<<<<< HEAD
-Чат в реальном времени с Socket.IO
-=======
-🛡 Аутентификация (Auth)
-🔹 1. Регистрация пользователя
-POST /api/auth/register
-📤 Пример запроса (body)
-
-```txt
-{
-  "email": "test@example.com",
-  "password": "123456",
-  "username": "testuser"
-}
+discord-clone/
+├── backend/                 # Node.js backend
+│   ├── src/                 # Source code
+│   │   ├── controllers/      # Request handlers
+│   │   ├── middleware/       # Authentication, etc.
+│   │   ├── models/         # Database models
+│   │   ├── routes/         # API routes
+│   │   ├── services/        # Business logic
+│   │   ├── socket/          # WebSocket handlers
+│   │   ├── utils/           # Helper functions
+│   │   └── config/         # Configuration files
+│   ├── migrations/           # Database migrations
+│   ├── init-scripts/        # Database initialization
+│   └── uploads/            # User uploaded files
+├── Frontend/                # React frontend
+│   ├── src/                 # Source code
+│   │   ├── components/       # Reusable UI components
+│   │   ├── context/          # React context providers
+│   │   ├── features/          # Feature modules
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── pages/            # Page components
+│   │   ├── api/              # API clients
+│   │   ├── types/            # TypeScript types
+│   │   └── utils/            # Helper functions
+│   └── nginx/                # Nginx configuration
+├── nginx/                   # Reverse proxy configuration
+└── uploads/                 # Shared uploads directory
 ```
 
-⚠️ username не обязательно — создаётся автоматически из email.
+## 🚀 Getting Started
 
-📥 Пример ответа (успех)
-```txt
-{
-  "success": true,
-  "message": "Регистрация успешна",
-  "data": {
-    "user": {
-      "id": 1,
-      "username": "testuser",
-      "email": "test@example.com"
-    },
-    "token": "jwt_token"
-  }
-}
-```
-🍪 Cookie
+### Prerequisites
+- Node.js (v18+)
+- Docker and Docker Compose
+- PostgreSQL (if running without Docker)
+- Redis (if running without Docker)
 
-Сервер устанавливает:
-```txt
-Set-Cookie: token=JWT; HttpOnly; SameSite=Lax
-```
-🔹 2. Вход пользователя
-POST /api/auth/login
-📤 Пример запроса (body)
-```txt
-{
-  "email": "test@example.com",
-  "password": "123456"
-}
-```
-📥 Пример ответа
-```txt
-{
-  "success": true,
-  "message": "Вход выполнен",
-  "data": {
-    "user": {
-      "id": 1,
-      "username": "testuser",
-      "email": "test@example.com"
-    },
-    "token": "jwt_token"
-  }
-}
-```
-🍪 Cookie
+### Environment Setup
 
-Устанавливается cookie "token"
-(хранится безопасно, httpOnly).
-
-🔹 3. Получение данных о себе (требуется авторизация)
-GET /api/auth/me
-🔐 Требуется cookie token
-📥 Пример ответа
-```txt
-{
-  "success": true,
-  "data": {
-    "user": {
-      "id": 1,
-      "username": "testuser",
-      "email": "test@example.com"
-    }
-  }
-}
+1. **Clone the repository:**
+```bash
+git clone <repository-url>
+cd discord-clone
 ```
 
-Если токен неверный / нет cookie:
-```txt
-{
-  "success": false,
-  "message": "Не авторизован"
-}
+2. **Set up backend environment:**
+```bash
+cd backend
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-🔹 4. Выход (очистка cookie)
-POST /api/auth/logout
-📥 Пример ответа:
-{
-```txt
-  "success": true,
-  "message": "Выход выполнен",
-  "data": null
-}
+3. **Set up frontend environment:**
+```bash
+cd ../Frontend
+# No specific environment file needed for development
 ```
-🍪 Cookie очищается:
-Set-Cookie: token=""; Max-Age=0
 
-⚙ Системные методы
-🔹 5. Проверка состояния сервера
-GET /api/health
-📥 Пример ответа:
-```txt
-{
-  "status": "OK",
-  "message": "Express сервер работает",
-  "timestamp": "2025-11-18T12:00:00.000Z",
-  "environment": "development"
-}
+### Development Setup
+
+1. **Install dependencies:**
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd ../Frontend
+npm install
 ```
-🔹 6. Тестовый метод
-GET /api/test
-📥 Пример ответа:
-```txt
-{
-  "message": "API работает!",
-  "endpoints": [
-    "/api/health",
-    "/api/test",
-    "/api/db-check"
-  ]
-}
+
+2. **Start development servers:**
+```bash
+# Start backend (from backend directory)
+npm run dev
+
+# Start frontend (from Frontend directory)
+npm run dev
 ```
-🔹 7. Проверка подключения к БД
-GET /api/db-check
-📥 Пример успешного ответа:
-```txt
-{
-  "status": "SUCCESS",
-  "message": "База данных подключена успешно!",
-  "timestamp": "2025-11-18T12:00:00.000Z"
-}
+
+### Docker Deployment
+
+1. **Build and start all services:**
+```bash
+# From project root
+docker-compose up --build
 ```
-📥 Пример ошибки:
-```txt
-{
-  "status": "ERROR",
-  "message": "Не удалось подключиться к базе данных",
-  "error": "database timeout",
-  "solution": "Проверьте что контейнеры запущены: docker ps"
-}
+
+2. **Start services in detached mode:**
+```bash
+docker-compose up -d
 ```
->>>>>>> 04cfb976d3e661af43e59ebfd49fc03db13fa785
+
+3. **Stop services:**
+```bash
+docker-compose down
+```
+
+## 🔐 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Cookie-based Sessions**: HttpOnly, Secure cookies
+- **CORS Protection**: Configured CORS policies
+- **Input Validation**: Server-side validation
+- **Password Hashing**: bcrypt for secure password storage
+- **Rate Limiting**: API rate limiting (coming soon)
+
+## 🌐 API Documentation
+
+The API is organized into the following modules:
+
+- `/api/auth` - Authentication endpoints
+- `/api/users` - User management
+- `/api/friends` - Friends system
+- `/api/messages` - Messaging system
+- `/api/servers` - Server management
+- `/api/ai` - Simple AI chat
+- `/api/ai-agent` - Advanced AI project manager
+- `/chat` - AI chat UI
+
+## 🧪 Testing
+
+### Backend Testing
+```bash
+cd backend
+npm test
+```
+
+### Database Testing
+```bash
+cd backend
+npm run test:db
+```
+
+## 📦 Deployment
+
+### Production Docker Setup
+
+1. **Configure environment variables** in `backend/.env`
+2. **Build and start services:**
+```bash
+docker-compose -f docker-compose.yml up --build -d
+```
+
+### Manual Deployment
+
+1. **Set up PostgreSQL and Redis** servers
+2. **Configure environment variables** in `backend/.env`
+3. **Build backend:**
+```bash
+cd backend
+npm install --production
+```
+4. **Build frontend:**
+```bash
+cd ../Frontend
+npm install --production
+npm run build
+```
+5. **Deploy built files** to your web server
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For support, please open an issue on the GitHub repository or contact the maintainers.
+
+## 🙏 Acknowledgments
+
+- Thanks to all contributors who have helped with this project
+- Special thanks to the open-source community for the amazing tools and libraries

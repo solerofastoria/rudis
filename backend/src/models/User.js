@@ -13,9 +13,10 @@ module.exports = (sequelize, DataTypes) => {
     avatar: { type: DataTypes.STRING, defaultValue: null },
     status: { type: DataTypes.ENUM('online','offline','idle','dnd'), defaultValue: 'offline' },
     online: { type: DataTypes.BOOLEAN, defaultValue: false },
-    lastSeen: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+    last_seen: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
   }, {
     tableName: 'users',
+    underscored: true,
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) user.password = await bcrypt.hash(user.password, 12);
@@ -37,8 +38,18 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.associate = (models) => {
-    User.hasMany(models.Message, { foreignKey: 'senderId', as: 'sentMessages' });
-    User.hasMany(models.Message, { foreignKey: 'recipientId', as: 'receivedMessages' });
+    User.hasMany(models.Message, { foreignKey: 'sender_id', as: 'sentMessages' });
+    User.hasMany(models.Message, { foreignKey: 'recipient_id', as: 'receivedMessages' });
+    User.hasMany(models.Friend, {
+      foreignKey: 'user_id',
+      as: 'friendships',
+      constraints: false
+    });
+    User.hasMany(models.Friend, {
+      foreignKey: 'friend_id',
+      as: 'friendRequests',
+      constraints: false
+    });
   };
 
   return User;

@@ -3,7 +3,8 @@ const db = require("../models");
 
 async function authenticate(req, res, next) {
   try {
-    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    // Получаем токен из cookies
+    const token = req.cookies.token;
 
     if (!token) {
       return res.status(401).json({ message: "Нет токена, доступ запрещён" });

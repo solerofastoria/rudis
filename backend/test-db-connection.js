@@ -1,48 +1,22 @@
-const { Sequelize } = require('sequelize');
+// backend/test-db-connection.js
+const { sequelize, testConnection } = require('./src/config/database');
 
-async function testConnection() {
-  console.log('🧪 Тестируем прямое подключение к PostgreSQL...');
-  
+(async () => {
   try {
-    const sequelize = new Sequelize(
-      'discord_clone',
-      'postgres', 
-      'password',
-      {
-        host: 'localhost',
-        port: 5432,
-        dialect: 'postgres',
-        logging: console.log
-      }
-    );
-
-    await sequelize.authenticate();
-    console.log('✅ Прямое подключение УСПЕШНО!');
+    await testConnection();
+    console.log('✅ Подключение к базе данных успешно установлено');
     
-    // Создадим тестовую таблицу
-    await sequelize.query(`
-      CREATE TABLE IF NOT EXISTS users_test (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-    console.log('✅ Тестовая таблица создана');
+    // Проверяем наличие таблиц
+    const tables = await sequelize.getQueryInterface().showAllSchemas();
+    console.log('📋 Доступные схемы:', tables.map(t => t.name || t));
     
-    await sequelize.close();
-    return true;
+    // Получаем список таблиц в текущей схеме
+    const tableNames = await sequelize.getQueryInterface().showAllTables();
+    console.log('📋 Таблицы в базе данных:', tableNames);
+    
+    process.exit(0);
   } catch (error) {
-    console.error('❌ Прямое подключение НЕ УДАЛОСЬ:');
-    console.error('   Ошибка:', error.message);
-    console.error('   Код:', error.original?.code);
-    
-    console.log('\n💡 Проверь:');
-    console.log('   1. Контейнер запущен: docker ps');
-    console.log('   2. Можно подключиться через командную строку:');
-    console.log('      docker exec -it discord_clone_db psql -U postgres -d discord_clone -c "SELECT version();"');
-    
-    return false;
+    console.error('❌ Ошибка подключения к базе данных:', error.message);
+    process.exit(1);
   }
-}
-
-testConnection();
+})();

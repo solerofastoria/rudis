@@ -1,0 +1,62 @@
+.server-page {
+  padding: 20px;
+  color: white;
+  background-color: #36393f;
+  min-height: 100vh;
+}
+
+.server-header {
+  margin-bottom: 30px;
+}
+
+.server-header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.server-info {
+  background-color: #2f3136;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.server-info p {
+  margin: 5px 0;
+  color: #b9bbbe;
+}
+
+.channels-list h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.channels-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.channel-item {
+  padding: 10px;
+  margin-bottom: 5px;
+  background-color: #2f3136;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.channel-item:hover {
+  background-color: #40444b;
+}
+
+.channel-name {
+  font-size: 1.1rem;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #f04747;
+}

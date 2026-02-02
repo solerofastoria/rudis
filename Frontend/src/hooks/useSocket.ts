@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 import { useSocket as useSocketContext } from '../context/SocketContext';
-import type { Socket } from 'socket.io-client';
 import { throttledSocketLog } from '../utils/socketLogger';
 
 interface UseSocketReturn {
-  socket: Socket | null;
+  socket: any | null;
   isConnected: boolean;
   emit: (event: string, data?: any) => void;
   on: (event: string, callback: (...args: any[]) => void) => (() => void) | undefined;

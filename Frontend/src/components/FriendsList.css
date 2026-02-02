@@ -1,0 +1,128 @@
+/* ========================= FRIENDS LIST ========================= */
+
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.friends-list-header {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.friends-list-header h2 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.friends-search-container {
+  width: 100%;
+}
+
+.friends-list-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.friends-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s;
+}
+
+.friends-list-item:hover {
+  background-color: var(--surface-light);
+}
+
+.friends-list-item-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.friends-list-item-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, var(--primary), #667eea);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.friends-list-item-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.friends-list-item-name {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friends-list-item-status {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.friends-list-item-status.online {
+  color: var(--success);
+}
+
+.friends-list-item-status.offline {
+  color: var(--text-secondary);
+}
+
+.friends-list-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  font-size: var(--font-size-md);
+}
+
+.friends-list-loading {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+
+.friends-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--border);
+  background-color: var(--surface-light);
+}
+
+.friends-pagination-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}

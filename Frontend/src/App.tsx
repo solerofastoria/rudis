@@ -1,121 +1,11 @@
-import { useState, useContext, useEffect } from "react";
-import sun from "./assets/Frame.svg";
-import moon from "./assets/Frame-night.svg";
-
-// Фоны
-import bgDark from "./assets/bg.jpg";
-import bgLight from "./assets/bg-sun.jpg";
-
+import { useEffect } from "react";
 import "./App.css";
-
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
-import { login, register } from "./api/auth";
+import useAuth from "./hooks/useAuth";
 import { MainLayout } from "./components/MainLayout";
-import { AuthContext } from "./context/AuthContext";
 import { ChatPerformanceStats } from "./components/ChatPerformanceStats";
-
-function LoginPage() {
-  const { setUser } = useContext(AuthContext);
-
-  const [isLight, setIsLight] = useState(false);
-  const [rotate, setRotate] = useState(false);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const navigate = useNavigate();
-
-  /** Переключение темы */
-  const toggleTheme = () => {
-    setRotate(true);
-    setIsLight((prev) => !prev);
-    setTimeout(() => setRotate(false), 800);
-  };
-
-  /** Логин */
-  const handleLogin = async () => {
-    try {
-      const res = await login(email, password);
-      setUser(res.data.data.user);
-
-      setTimeout(() => navigate("/app"), 100);
-    } catch (err) {
-      alert("Ошибка входа");
-    }
-  };
-
-  /** Регистрация */
-  const handleRegister = async () => {
-    try {
-      const username = email.split("@")[0];
-      const res = await register(username, email, password);
-      setUser(res.data.data.user);
-
-      setTimeout(() => navigate("/app"), 100);
-    } catch (err) {
-      alert("Ошибка регистрации");
-    }
-  };
-
-  return (
-    <div
-      className={`app ${isLight ? "light" : "dark"}`}
-      style={
-        {
-          "--bg-image": `url(${isLight ? bgLight : bgDark})`
-        } as React.CSSProperties
-      }
-    >
-      {/* Размытый слой */}
-      <div className="background-layer"></div>
-
-      {/* Кнопка переключения темы */}
-      <div className="theme-button" onClick={toggleTheme}>
-        <img
-          src={isLight ? moon : sun}
-          alt="theme-switch"
-          className={`sun-icon ${rotate ? "sun-rotate" : ""}`}
-        />
-      </div>
-
-      {/* Форма входа */}
-      <div className="login-box">
-        <h1 className="title">Добро пожаловать!</h1>
-
-        <label className="label">Email *</label>
-        <input
-          className="input"
-          placeholder="введите email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <label className="label">Пароль *</label>
-        <input
-          className="input"
-          type="password"
-          placeholder="введите пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button className="login-btn" onClick={handleLogin}>
-          ВХОД
-        </button>
-
-        <a className="register" href="#" onClick={handleRegister}>
-          Зарегистрироваться
-        </a>
-      </div>
-      
-      {/* Статистика производительности */}
-      <ChatPerformanceStats />
-    </div>
-  );
-}
-
-/* ========================= APP PAGE ========================= */
+import LoginPage from "./pages/Auth/LoginPage";
+import RegisterPage from "./pages/Auth/RegisterPage";
 
 function AppPage() {
   const { user, loading: authLoading } = useAuth();
@@ -157,7 +47,13 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      <Route
+        path="/"
+        element={user ? <AppPage /> : <LoginPage />}
+      />
 
       <Route
         path="/app/*"
@@ -171,6 +67,16 @@ export default function App() {
 
       <Route
         path="/dm/:userId"
+        element={user ? <MainLayout /> : <LoginPage />}
+      />
+      
+      <Route
+        path="/app/friends"
+        element={user ? <MainLayout /> : <LoginPage />}
+      />
+      
+      <Route
+        path="/app/servers/:serverId"
         element={user ? <MainLayout /> : <LoginPage />}
       />
     </Routes>

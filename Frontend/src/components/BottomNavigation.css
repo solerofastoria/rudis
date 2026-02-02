@@ -1,0 +1,324 @@
+/* ========================= BOTTOM NAVIGATION ========================= */
+
+.bottom-navigation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Панель серверов */
+.servers-panel {
+  position: absolute;
+  top: 60px;
+  left: 20px;
+  width: 250px;
+  background: rgba(45, 55, 72, 0.95);
+  backdrop-filter: blur(18px);
+  border-radius: 0 0 1.5rem 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.servers-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.servers-panel-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.servers-panel-close {
+  background: none;
+  border: none;
+  color: rgb(255, 255, 255);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.15s ease;
+}
+
+.servers-panel-close:hover {
+  transform: rotate(90deg);
+}
+
+.servers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.server-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.server-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.server-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.server-item span {
+  color: white;
+  font-size: 1rem;
+}
+
+.create-server-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  border: none;
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.create-server-button:hover {
+  background: linear-gradient(90deg, #3182ce, #5a67d8);
+  transform: translateY(-1px);
+}
+
+/* Основная панель навигации */
+.navigation-panel {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  background: rgba(45, 55, 72, 0.95);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+}
+
+.navigation-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.navigation-item:hover {
+  transform: translateY(-5px);
+}
+
+.navigation-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+  transition: all 0.15s ease;
+  color: #a0aec0;
+}
+
+.navigation-icon.active {
+  color: #4299e1;
+  text-shadow: 0 0 10px rgba(66, 153, 225, 0.5);
+}
+
+.navigation-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.active-indicator {
+  position: absolute;
+  bottom: -15px;
+  width: 4px;
+  height: 4px;
+  background: #4299e1;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #4299e1;
+}
+
+/* Кнопка создания */
+.create-button {
+  width: 60px;
+  height: 60px;
+  margin-top: -30px;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(66, 153, 225, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.create-button:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 6px 25px rgba(66, 153, 225, 0.6);
+}
+
+.create-icon {
+  font-size: 30px;
+  color: white;
+}
+
+/* Бейдж уведомлений */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e53e3e;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Меню */
+.menu-panel {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 280px;
+  background: rgba(45, 55, 72, 0.95);
+  backdrop-filter: blur(18px);
+  border-radius: 0 0 1.5rem 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.menu-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.user-status {
+  color: #68d391;
+  font-size: 0.75rem;
+}
+
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu-item {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .navigation-panel {
+    height: 65px;
+    padding: 0 0.75rem;
+  }
+  
+  .navigation-icon {
+    font-size: 20px;
+  }
+  
+  .navigation-label {
+    font-size: 10px;
+  }
+  
+  .create-button {
+    width: 50px;
+    height: 50px;
+    margin-top: -25px;
+  }
+  
+  .create-icon {
+    font-size: 24px;
+  }
+  
+  .servers-panel {
+    width: 200px;
+    left: 10px;
+    top: 75px;
+  }
+  
+  .menu-panel {
+    width: 250px;
+    right: 10px;
+    top: 75px;
+  }
+}

@@ -1,4 +1,3 @@
-export * from './throttle';
-export * from './debounce';
-export * from './socketLogger';
-export * from './testChatPerformance';
+
+export { throttle } from './throttle';
+export { default as testChatPerformance } from './testChatPerformance';

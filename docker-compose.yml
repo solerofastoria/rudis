@@ -1,51 +1,105 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16
-    container_name: rudis_postgres
+  # База данных PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: discord_db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: rudis
+      POSTGRES_DB: ${DB_NAME:-discord_clone}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - rudis-net
+      - discord_network
 
+  # Redis для кэширования
   redis:
-    image: redis:7
-    container_name: rudis_redis
+    image: redis:7-alpine
+    container_name: discord_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     networks:
-      - rudis-net
+      - discord_network
 
+  # Бэкенд (Node.js + Express)
   backend:
-    build: ./backend
-    container_name: rudis_backend
-    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: discord_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
-      - .env
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - COOKIE_SECURE=true
+    volumes:
+      - ./backend/uploads:/app/uploads
     ports:
       - "5000:5000"
     networks:
-      - rudis-net
-    depends_on:
-      - postgres
-      - redis
+      - discord_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Фронтенд (React + Vite)
   frontend:
-    build: ./frontend
-    container_name: rudis_frontend
-    restart: always
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: discord_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
     ports:
       - "3000:80"
     networks:
-      - rudis-net
-    depends_on:
-      - backend
+      - discord_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+# Сети
 networks:
-  rudis-net:
+  discord_network:
+    driver: bridge
 
+# Постоянные данные
 volumes:
   postgres_data:
+  redis_data:

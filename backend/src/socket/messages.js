@@ -34,17 +34,17 @@ module.exports = (io) => {
       try {
         console.log("🔍 Создание сообщения с параметрами:", {
           content: content.trim(),
-          senderId: userId,
-          recipientId: toUserId,
-          isDirect: true,
-          isRead: false,
+          sender_id: userId,
+          recipient_id: toUserId,
+          is_direct: true,
+          is_read: false,
         });
         
         const message = await Message.create({
           content: content.trim(),
-          senderId: userId,
-          recipientId: toUserId,
-          isDirect: true,
+          sender_id: userId,
+          recipient_id: toUserId,
+          is_direct: true,
           isRead: false,
         });
         
@@ -60,8 +60,8 @@ module.exports = (io) => {
         const msg = fullMessage.get({ plain: true });
         msg.username = msg.sender.username;
         msg.userId = msg.sender.id;
-        msg.timestamp = new Date(msg.createdAt).getTime();
-        if (msg.editedAt) msg.editedAt = new Date(msg.editedAt).getTime();
+        msg.timestamp = new Date(msg.created_at).getTime();
+        if (msg.edited_at) msg.edited_at = new Date(msg.edited_at).getTime();
 
         // отправляем себе
         socket.emit("dm:sent", msg);
@@ -82,9 +82,9 @@ module.exports = (io) => {
         if (targetSocketId) {
           const unread = await Message.count({
             where: {
-              isDirect: true,
-              recipientId: toUserId,
-              isRead: false,
+              is_direct: true,
+              recipient_id: toUserId,
+              is_read: false,
             },
           });
 
@@ -110,8 +110,8 @@ module.exports = (io) => {
       try {
         const messageData = await Message.create({
           content: content.trim(),
-          senderId: userId,
-          isDirect: false,
+          sender_id: userId,
+          is_direct: false,
         });
 
         const fullMessage = await Message.findByPk(messageData.id, {
@@ -121,8 +121,8 @@ module.exports = (io) => {
         const msg = fullMessage.get({ plain: true });
         msg.username = msg.sender.username;
         msg.userId = msg.sender.id;
-        msg.timestamp = new Date(msg.createdAt).getTime();
-        if (msg.editedAt) msg.editedAt = new Date(msg.editedAt).getTime();
+        msg.timestamp = new Date(msg.created_at).getTime();
+        if (msg.edited_at) msg.edited_at = new Date(msg.edited_at).getTime();
 
         messages.emit("chat:message", msg);
         console.log("📤 chat:message отправлено всем:", msg);
@@ -146,14 +146,14 @@ module.exports = (io) => {
           return;
         }
 
-        if (message.senderId !== userId) {
+        if (message.sender_id !== userId) {
           socket.emit("message:error", { message: "Нет прав" });
           return;
         }
 
         message.content = content.trim();
-        message.isEdited = true;
-        message.editedAt = new Date();
+        message.is_edited = true;
+        message.edited_at = new Date();
         await message.save();
 
         const fullMessage = await Message.findByPk(message.id, {
@@ -166,8 +166,8 @@ module.exports = (io) => {
         const msg = fullMessage.get({ plain: true });
         msg.username = msg.sender.username;
         msg.userId = msg.sender.id;
-        msg.timestamp = new Date(msg.createdAt).getTime();
-        if (msg.editedAt) msg.editedAt = new Date(msg.editedAt).getTime();
+        msg.timestamp = new Date(msg.created_at).getTime();
+        if (msg.edited_at) msg.edited_at = new Date(msg.edited_at).getTime();
 
         messages.emit("message:updated", msg);
         console.log("📤 message:updated отправлено всем:", msg);
@@ -191,7 +191,7 @@ module.exports = (io) => {
           return;
         }
 
-        if (message.senderId !== userId) {
+        if (message.sender_id !== userId) {
           socket.emit("message:error", { message: "Нет прав" });
           return;
         }

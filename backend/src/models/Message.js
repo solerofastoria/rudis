@@ -6,20 +6,21 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     content: { type: DataTypes.TEXT, allowNull: false },
-    isDirect: { type: DataTypes.BOOLEAN, defaultValue: false },
-    recipientId: { type: DataTypes.UUID, allowNull: true },
-    senderId: { type: DataTypes.UUID, allowNull: false },
-    isEdited: { type: DataTypes.BOOLEAN, defaultValue: false },
-    editedAt: { type: DataTypes.DATE, allowNull: true },
-    isRead: { type: DataTypes.BOOLEAN, defaultValue: false }
+    is_direct: { type: DataTypes.BOOLEAN, defaultValue: false },
+    recipient_id: { type: DataTypes.UUID, allowNull: true },
+    sender_id: { type: DataTypes.UUID, allowNull: false },
+    is_edited: { type: DataTypes.BOOLEAN, defaultValue: false },
+    edited_at: { type: DataTypes.DATE, allowNull: true },
+    is_read: { type: DataTypes.BOOLEAN, defaultValue: false }
   }, {
     tableName: 'messages',
+    underscored: true,
     timestamps: true
   });
 
   Message.associate = (models) => {
-    Message.belongsTo(models.User, { foreignKey: 'senderId', as: 'sender' });
-    Message.belongsTo(models.User, { foreignKey: 'recipientId', as: 'recipient' });
+    Message.belongsTo(models.User, { foreignKey: 'sender_id', as: 'sender' });
+    Message.belongsTo(models.User, { foreignKey: 'recipient_id', as: 'recipient' });
   };
 
   return Message;

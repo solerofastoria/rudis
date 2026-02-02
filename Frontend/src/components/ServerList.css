@@ -1,0 +1,52 @@
+/* ========================= SERVER LIST ========================= */
+
+.server-list {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.server-list-content {
+  padding: 1rem;
+}
+
+.server-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.server-item:hover {
+  background-color: rgba(108, 117, 125, 0.5);
+  transform: translateY(-1px);
+}
+
+.server-item.selected {
+  background: linear-gradient(90deg, #4299e1, #667eea);
+  color: white;
+}
+
+.server-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  margin-right: 0.75rem;
+}
+
+.server-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+}

@@ -6,7 +6,7 @@ exports.getMessages = async (req, res) => {
   try {
     const messages = await Message.findAll({
       where: {
-        isDirect: false
+        is_direct: false
       },
       include: [
         {
@@ -15,7 +15,7 @@ exports.getMessages = async (req, res) => {
           attributes: ['id', 'username', 'avatar']
         }
       ],
-      order: [['createdAt', 'ASC']],
+      order: [['created_at', 'ASC']],
       limit: 100
     });
 
@@ -34,18 +34,18 @@ exports.getDirectMessages = async (req, res) => {
 
     const messages = await Message.findAll({
       where: {
-        isDirect: true,
+        is_direct: true,
         [require('sequelize').Op.or]: [
           {
             [require('sequelize').Op.and]: [
-              { senderId: currentUserId },
-              { recipientId: userId }
+              { sender_id: currentUserId },
+              { recipient_id: userId }
             ]
           },
           {
             [require('sequelize').Op.and]: [
-              { senderId: userId },
-              { recipientId: currentUserId }
+              { sender_id: userId },
+              { recipient_id: currentUserId }
             ]
           }
         ]
@@ -62,7 +62,7 @@ exports.getDirectMessages = async (req, res) => {
           attributes: ['id', 'username', 'avatar']
         }
       ],
-      order: [['createdAt', 'ASC']],
+      order: [['created_at', 'ASC']],
       limit: 100
     });
 
@@ -81,16 +81,16 @@ exports.getUnreadMessages = async (req, res) => {
     // Получаем id отправителей всех непрочитанных сообщений
     const unreadMsgs = await Message.findAll({
       where: {
-        isDirect: true,
-        recipientId: currentUserId,
-        isRead: false
+        is_direct: true,
+        recipient_id: currentUserId,
+        is_read: false
       },
-      attributes: ['senderId']
+      attributes: ['sender_id']
     });
 
     // Считаем количество по каждому senderId
     const unreadCounts = unreadMsgs.reduce((acc, msg) => {
-      acc[msg.senderId] = (acc[msg.senderId] || 0) + 1;
+      acc[msg.sender_id] = (acc[msg.sender_id] || 0) + 1;
       return acc;
     }, {});
 
@@ -109,13 +109,13 @@ exports.markMessagesAsRead = async (req, res) => {
 
     // Помечаем все непрочитанные сообщения от этого пользователя как прочитанные
     await Message.update(
-      { isRead: true },
+      { is_read: true },
       {
         where: {
-          isDirect: true,
-          senderId: userId,
-          recipientId: currentUserId,
-          isRead: false
+          is_direct: true,
+          sender_id: userId,
+          recipient_id: currentUserId,
+          is_read: false
         }
       }
     );
@@ -148,10 +148,10 @@ exports.createMessage = async (req, res) => {
 
     const message = await Message.create({
       content: content.trim(),
-      senderId,
-      recipientId: isDirect ? recipientId : null,
-      isDirect: isDirect || false,
-      isRead: false // Новые сообщения по умолчанию непрочитаны
+      sender_id: senderId,
+      recipient_id: isDirect ? recipientId : null,
+      is_direct: isDirect || false,
+      is_read: false // Новые сообщения по умолчанию непрочитаны
     });
 
     // Загружаем полную информацию о сообщении
@@ -197,14 +197,14 @@ exports.updateMessage = async (req, res) => {
     }
 
     // Проверить, что пользователь является автором сообщения
-    if (message.senderId !== userId) {
+    if (message.sender_id !== userId) {
       return error(res, "Нет прав для редактирования этого сообщения", 403);
     }
 
     // Обновить сообщение
     message.content = content.trim();
-    message.isEdited = true;
-    message.editedAt = new Date();
+    message.is_edited = true;
+    message.edited_at = new Date();
     
     await message.save();
 
@@ -245,7 +245,7 @@ exports.deleteMessage = async (req, res) => {
     }
 
     // Проверить, что пользователь является автором сообщения
-    if (message.senderId !== userId) {
+    if (message.sender_id !== userId) {
       return error(res, "Нет прав для удаления этого сообщения", 403);
     }
 

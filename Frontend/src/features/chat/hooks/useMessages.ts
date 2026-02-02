@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSocket } from "../../../context/SocketContext"; // ← ОСТАЁТСЯ ТОЛЬКО ЭТО
-import { useAuth } from "../../../hooks/useAuth";
+import useAuth from "../../../hooks/useAuth";
 import type { IMessage } from "../types/types";
 import * as messageApi from "../../../api/messages";
 
@@ -148,15 +148,15 @@ export const useMessages = (userId?: string) => {
     socket.on("message:deleted", handleDeleted);
     
     // Обработка ошибок
-    socket.on("dm:error", (error) => {
+    socket.on("dm:error", (error: any) => {
       console.error("❌ Ошибка DM:", error);
     });
     
-    socket.on("chat:error", (error) => {
+    socket.on("chat:error", (error: any) => {
       console.error("❌ Ошибка чата:", error);
     });
     
-    socket.on("message:error", (error) => {
+    socket.on("message:error", (error: any) => {
       console.error("❌ Ошибка сообщения:", error);
     });
     
